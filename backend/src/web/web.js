@@ -33,11 +33,11 @@ web.use(api);
 // Io 
 io.on("connection", (socket) => {
 
-    console.log('Server connected');
+    require("./socket")(socket);
 
-    socket.on("message", (msg) => {
-        console.log(msg);
-    })
 })
 
-module.exports = server;
+module.exports = {
+    server,
+    io
+}
