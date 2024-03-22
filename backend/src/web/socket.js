@@ -1,15 +1,12 @@
-const userSevice = require("../services/user-service");
 
-module.exports = (socket) => {
-    console.log('Server connected');
+let client_active = [];
+module.exports = {
+    socket_provider: (socket) => {
 
-    socket.on("message", (msg) => {
-        console.log(msg);
-    })
+        const current_user = socket.handshake.auth;
+        socket.join(current_user.username);
+        client_active.push(current_user);
 
-    socket.on("add-user", async (data) => {
-        console.log(data)
-        await userSevice.addUser(data);
-    })
+    }
 }
 

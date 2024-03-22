@@ -1,22 +1,38 @@
+
+// configuration
 const express = require("express");
 require("dotenv").config();
 const cors = require('cors');
+const cookie = require('express-cookie');
 
+
+// web
 const web = require("express")();
 const server = require("http").createServer(web);
 const { Server } = require('socket.io');
 
+// socket
+const { socket_provider } = require('./socket')
+
+// router
 const api = require("../routes/api");
 
+// mddleware
+const errorMiddleware = require("../middleware/error-middleware");
+const authMiddleware = require("../middleware/auth-middleware");
+
 web.use(express.json());
+web.use(express.urlencoded({ extended: true }))
+web.use(cookie());
 web.use(cors({
     origin: [
         "http://localhost:5173",
         "http://localhost:3000"
     ],
     credentials: true,
-    allowedHeaders: ["Set-header"]
+    exposedHeaders: ["set-cookie"],
 }));
+
 
 const io = new Server(server, {
     cors: {
@@ -27,17 +43,20 @@ const io = new Server(server, {
     }
 });
 
+// middleware
+io.use(authMiddleware.socket);
+web.use(authMiddleware.api);
+
 // Router
 web.use(api);
 
-// Io 
-io.on("connection", (socket) => {
+// socket
+io.on('connection',
+    (socket) =>
+        socket_provider(socket)
+);
 
-    require("./socket")(socket);
+// error handler
+web.use(errorMiddleware);
 
-})
-
-module.exports = {
-    server,
-    io
-}
+module.exports = server;
