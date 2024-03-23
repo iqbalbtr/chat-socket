@@ -11,8 +11,9 @@ datasource db {
 }
 
 model user {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  passwors String
-  token    String?
+  id           Int     @id @default(autoincrement())
+  username     String  @unique
+  password     String
+  token        String? @unique
+  socket_token String? @unique
 }
