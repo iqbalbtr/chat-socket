@@ -17,44 +17,52 @@ module.exports = {
 
         if(!count) throw new ResponseError(404, "User is not found");
 
-        const compare_pass = await bcrypt.compare(req_valid.password, count.passwors) 
+        const compare_pass = await bcrypt.compare(req_valid.password, count.password); 
 
         if(!compare_pass) throw new ResponseError(401, "Password or user is wrong")
 
-        const payload = {
+        const payload_token = {
             id: count.id,
             username: count.username
         }
-
+        const payload_socket = {
+            username: count.username,
+            active: true
+        }
 
         return prisma.user.update({
             where: {
                 id: count.id
             },
             data: {
-                token: jwt.sign(payload, process.env.TOKEN_KEY)
+                token: jwt.sign(payload_token, process.env.TOKEN_KEY),
+                socket_token: jwt.sign(payload_socket, process.env.TOKEN_KEY)
             },
             select: {
-                token: true
+                id: true,
+                username: true,
+                token: true,
+                socket_token: true
             }
-        })
+        });
 
     },
     logout: async(req) => {
         const count = await prisma.user.findFirst({
             where: {
-                token: req
+                token: req.token
             }
         })
 
-        if (!count) throw new ResponseError(404, "User is not found")
+        if (!count) throw new ResponseError(404, "User is not found");
 
         return await prisma.user.update({
             where: {
                 id: count.id
             }, 
             data: {
-                token: null
+                token: null,
+                socket_token: null
             },
             select: {
                 username: true

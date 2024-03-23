@@ -15,7 +15,6 @@ module.exports = {
             }
         })
 
-        console.log({req_valid});
         const password = await bcrypt.hash(req_valid.password, 10);
         
         if (count >= 1) throw new ResponseError(400, "User already exist");
@@ -23,11 +22,20 @@ module.exports = {
         return await prisma.user.create({
             data: {
                 username: req_valid.username,
-                passwors: password
+                password: password
             },
             select: {
-                username: true
+                username: true,
             }
         })
+    },
+    exist: async(req) => {
+        const query = await prisma.user.findFirst({
+            where: {
+                username: req.username
+            }
+        })
+
+        return query;
     }
 }
