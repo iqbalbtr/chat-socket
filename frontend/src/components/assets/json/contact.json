@@ -1,0 +1,27 @@
+[
+    {
+        "id": 1,
+        "username": "alice123",
+        "name": "Alice Johnson"
+    },
+    {
+        "id": 2,
+        "username": "bob456",
+        "name": "Bob Smith"
+    },
+    {
+        "id": 3,
+        "username": "charlie789",
+        "name": "Charlie Brown"
+    },
+    {
+        "id": 4,
+        "username": "david012",
+        "name": "David Lee"
+    },
+    {
+        "id": 5,
+        "username": "eva345",
+        "name": "Eva Garcia"
+    }
+]

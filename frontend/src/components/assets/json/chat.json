@@ -1,0 +1,56 @@
+[
+    {
+        "id": 1,
+        "username": "Alice",
+        "from": "Alice",
+        "to": "Bob",
+        "msg": "Halo Bob, apa kabar?",
+        "timestamp": "2024-03-20T08:30:00.000Z",
+        "read": true
+    },
+    {
+        "id": 2,
+        "username": "Bob",
+        "from": "Bob",
+        "to": "Alice",
+        "msg": "Halo Alice, alhamdulillah baik. Bagaimana denganmu?",
+        "timestamp": "2024-03-20T08:35:00.000Z",
+        "read": true
+    },
+    {
+        "id": 3,
+        "username": "Alice",
+        "from": "Alice",
+        "to": "Bob",
+        "msg": "Saya juga baik, terima kasih.",
+        "timestamp": "2024-03-20T08:40:00.000Z",
+        "read": false
+    },
+    {
+        "id": 4,
+        "username": "Bob",
+        "from": "Bob",
+        "to": "Alice",
+        "msg": "Ada yang bisa saya bantu, Alice?",
+        "timestamp": "2024-03-20T08:45:00.000Z",
+        "read": true
+    },
+    {
+        "id": 5,
+        "username": "Alice",
+        "from": "Alice",
+        "to": "Bob",
+        "msg": "Tidak ada, terima kasih.",
+        "timestamp": "2024-03-20T08:50:00.000Z",
+        "read": true
+    },
+    {
+        "id": 6,
+        "username": "Bob",
+        "from": "Bob",
+        "to": "Alice",
+        "msg": "Baiklah, jika ada yang kamu butuhkan, beri tahu saya.",
+        "timestamp": "2024-03-20T08:55:00.000Z",
+        "read": false
+    }
+]

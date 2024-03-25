@@ -23,12 +23,12 @@
     "types": ["node"],
     "paths": {
       "@pages/*" : ["./src/pages/*"],
-      "@components" : ["./src/components"],
-      "@providers" : ["./src/providers", "./providers"],
-      "@libs": ["./src/libs"],
-      "@utils": ["./src/utils"],
-      "@hooks": ["./src/hooks"],
-      "@services": ["./src/services"]
+      "@components/*" : ["./src/components/*"],
+      "@providers/*" : ["./src/providers/*"],
+      "@libs/*": ["./src/libs/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@services/*": ["./src/services/*"]
     }
   },
   "include": ["src"],
