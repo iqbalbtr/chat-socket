@@ -42,7 +42,10 @@ module.exports = {
             )
             res.status(200).json({
                 result: {
-                    token: result.token,
+                    user: {
+                        id: result.id,
+                        username: result.username
+                    },
                     socket_token: result.socket_token
                 }
             });
