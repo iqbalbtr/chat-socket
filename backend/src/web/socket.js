@@ -9,7 +9,7 @@ module.exports = (socket) => {
     socket.join(current_user.username);
 
     const existing_user = client_active.users.find(client => client.username === current_user.username);
-    if(!existing_user){
+    if (!existing_user) {
         client_active = {
             count: client_active.count + 1,
             users: [
@@ -24,21 +24,21 @@ module.exports = (socket) => {
         client_active = {
             ...client_active,
             users: client_active.users.map(client => {
-                if(client.username === current_user.username){
+                if (client.username === current_user.username) {
                     return {
                         ...client,
                         active: true
                     }
-                }else{
+                } else {
                     return client
                 }
             })
         }
-    } 
+    }
 
     console.log("User active => ", client_active.users.map((client) => ({ username: client.username, active: client.active })));
     console.log("User count => ", client_active.count)
-   
+
     return {
         on_private: (msg) => {
             socket.to(msg.to).emit("private-message", msg);
@@ -68,7 +68,7 @@ module.exports = (socket) => {
             client_active = {
                 count: client_active.count - 1,
                 users: client_active.users.filter(client => {
-                    return(
+                    return (
                         client.username !== value.username &&
                         client.token !== value.token
                     )

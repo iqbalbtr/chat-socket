@@ -41,6 +41,7 @@ module.exports = {
                     token: _token
                 }
             })
+            res.locals.decrypt_token = verify;
             if (!query) throw new ResponseError(401, "Access denied");
             next();
         } catch (e) {

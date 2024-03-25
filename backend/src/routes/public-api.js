@@ -1,6 +1,6 @@
 const express = require("express");
 const public_api = express.Router();
-const authController = require("../controller/auth-cotroller")
+const authController = require("../controller/auth-controller")
 
 public_api.get("/", (req, res) => {
     res.status(200).json({
