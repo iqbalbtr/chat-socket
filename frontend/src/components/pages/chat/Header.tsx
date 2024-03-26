@@ -12,7 +12,7 @@ function Header() {
             <h1>Chat</h1>
             <div>
                 <span>@user</span>
-                <button
+                <div
                     style={{ position: "relative", cursor: "pointer"}}
                     onClick={() => setToggle(pv => !pv)}
                 >
@@ -23,7 +23,7 @@ function Header() {
                     <Modal open={toggle} setOpen={setToggle} filter={false}>
                         <HeaderMenuList />
                     </Modal>
-                </button>
+                </div>
             </div>
         </div>
     )

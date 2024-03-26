@@ -17,11 +17,12 @@ function ChatHeader() {
                 </div>
             </div>
             <div>
-                <button
+                <div
                     style={{
                         position: "relative",
                         border: "none",
-                        background: "transparent"
+                        background: "transparent",
+                        cursor: "pointer"
                     }}
                     onClick={() => setTglHeader(pv => !pv)}
                 >
@@ -40,7 +41,7 @@ function ChatHeader() {
                     >
                         <ContactMenuList />
                     </Modal>
-                </button>
+                </div>
             </div>
         </div>
     )
