@@ -5,7 +5,7 @@ let client_active = {
 
 module.exports = (socket) => {
 
-    const current_user = socket.handshake.auth;
+    const current_user = socket.user;
     socket.join(current_user.username);
 
     const existing_user = client_active.users.find(client => client.username === current_user.username);
@@ -40,10 +40,10 @@ module.exports = (socket) => {
     console.log("User count => ", client_active.count)
 
     return {
-        on_private: (msg) => {
+        on_private: async (msg) => {
             socket.to(msg.to).emit("private-message", msg);
         },
-        disconnect: () => {
+        disconnect: async () => {
             client_active = {
                 ...client_active,
                 users: client_active.users.map(client => {
@@ -61,10 +61,10 @@ module.exports = (socket) => {
             console.log(`${current_user.username} has been disconnect`);
             console.log("disconnect =>", client_active.users.map((client) => ({ username: client.username, active: client.active })));
         },
-        on_group: (name, msg) => {
+        on_group: async (name, msg) => {
             socket.to(name).emit("group-message", msg);
         },
-        on_logout: (value) => {
+        on_logout: async (value) => {
             client_active = {
                 count: client_active.count - 1,
                 users: client_active.users.filter(client => {

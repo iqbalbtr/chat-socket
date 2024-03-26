@@ -7,6 +7,7 @@ const contactController = require("../controller/contact-controller");
 private_api.use(authMiddleware.api);
 
 private_api.patch("/auth/logout", authController.logout);
+private_api.get("/auth/me", authController.me);
 
 private_api.get("/api/contacts", contactController.list);
 private_api.post("/api/contacts", contactController.create);

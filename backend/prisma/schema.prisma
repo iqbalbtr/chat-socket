@@ -11,9 +11,36 @@ datasource db {
 }
 
 model user {
-  id           Int     @id @default(autoincrement())
-  username     String  @unique
+  id           Int          @id @default(autoincrement())
+  username     String       @unique
   password     String
-  token        String? @unique
-  socket_token String? @unique
+  token        String?      @unique
+  last_active  DateTime?
+  socket_token String?      @unique
+  contact_list ContactList?
+  contact      Contact[]
+
+  @@map("users")
+}
+
+model ContactList {
+  id      Int       @id @default(autoincrement())
+  userId  Int       @unique
+  users   user      @relation(fields: [userId], references: [id])
+  date    DateTime  @default(now())
+  contact Contact[]
+
+  @@map("contact_list")
+}
+
+model Contact {
+  id        Int         @id @default(autoincrement())
+  name      String
+  date      DateTime    @default(now())
+  userId    Int
+  user      user        @relation(fields: [userId], references: [id])
+  contactId Int
+  contact   ContactList @relation(fields: [contactId], references: [id])
+
+  @@map("contacts")
 }

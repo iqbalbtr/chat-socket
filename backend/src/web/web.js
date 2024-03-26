@@ -39,8 +39,10 @@ const io = new Server(server, {
         origin: [
             "http://localhost:5173",
             "http://localhost:3000"
-        ]
-    }
+        ],
+        credentials: true
+    },
+    cookie: true
 });
 
 // middleware
@@ -49,6 +51,14 @@ io.use(authMiddleware.socket);
 // Router
 web.use(public_api);
 web.use(private_api);
+
+// io.use((socket, next) => {
+//     socket.conn.transport.once("headers", (headers) => {
+//         headers["set-cookie"] = "sess=test;"
+//     })
+    
+//     next();
+// })
 
 // socket
 io.on("connection", (socket) => {

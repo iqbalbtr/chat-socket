@@ -1,21 +1,28 @@
 const jwt = require("jsonwebtoken");
 const prisma = require("../../prisma/prisma");
 const ResponseError = require("../errors/error-response");
+const cookie = require("cookie");
 
 module.exports = {
     socket: async (socket, next) => {
         try {
+
+            const cookies = cookie.parse(socket.handshake.headers.cookie);
+            socket.cookies = cookies;
+            
             const auth = socket.handshake.auth;
-            jwt.verify(auth.token, process.env.TOKEN_KEY, (err, result) => {
+            if (!auth.username)
+                throw new ResponseError(401, "Access username is denied");
+            jwt.verify(cookies.auth_socket, process.env.TOKEN_KEY, (err, result) => {
                 if (err){
                     throw new ResponseError(401, "Access denied");
                 }
-                return result;
+                socket.user = result;
             });
             const query = await prisma.user.findUnique({
                 where: {
                     username: auth.username,
-                    socket_token: auth.token
+                    socket_token: cookies.auth_socket
                 }
             });
 

@@ -20,7 +20,7 @@ module.exports = {
                 result.token,
                 {
                     httpOnly: true,
-                    maxAge: 20 * 60 * 60 * 60 * 1000
+                    maxAge: 1000 * 60 * 60 * 24 * 7
                 }
             );
             res.cookie(
@@ -30,23 +30,23 @@ module.exports = {
                     username: result.username
                 }),
                 {
-                    maxAge: 20 * 60 * 60 * 60 * 1000
+                    maxAge: 1000 * 60 * 60 * 24 * 7
                 }
             );
             res.cookie(
                 "auth_socket",
                 result.socket_token,
                 {
-                    maxAge: 20 * 60 * 60 * 60 * 1000
-                }
+                    maxAge: 1000 * 60 * 60 * 24 * 7,
+                    httpOnly: true
+                },
             )
             res.status(200).json({
                 result: {
                     user: {
                         id: result.id,
                         username: result.username
-                    },
-                    socket_token: result.socket_token
+                    }
                 }
             });
             res.end();
@@ -65,6 +65,28 @@ module.exports = {
             cookies.forEach(cookie => res.clearCookie(cookie));
             res.status(200).json({
                 result: "OK"
+            })
+            res.end();
+        } catch (e) {
+            next(e);
+        }
+    },
+    me: async(req, res, next) => {
+        try {
+            const token = req.cookies.auth_token;
+            const result = await authService.me(token);
+            res.cookie(
+                "_user",
+                JSON.stringify({
+                    id: result.id,
+                    username: result.username
+                }),
+                {
+                    maxAge: 1000 * 60 * 60 * 24 * 7
+                }
+            );
+            res.status(200).json({
+                result
             })
             res.end();
         } catch (e) {

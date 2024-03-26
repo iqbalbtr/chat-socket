@@ -35,8 +35,8 @@ module.exports = {
                 id: count.id
             },
             data: {
-                token: jwt.sign(payload_token, process.env.TOKEN_KEY),
-                socket_token: jwt.sign(payload_socket, process.env.TOKEN_KEY)
+                token: jwt.sign(payload_token, process.env.TOKEN_KEY, {expiresIn: "7d"}),
+                socket_token: jwt.sign(payload_socket, process.env.TOKEN_KEY, {expiresIn: "7d"})
             },
             select: {
                 id: true,
@@ -68,5 +68,20 @@ module.exports = {
                 username: true
             }
         })
+    },
+    me: async(req) => {
+        const query = await prisma.user.findFirst({
+            where: {
+                token: req
+            },
+            select: {
+                id: true,
+                username: true
+            }
+        });
+
+        if (!query) throw new ResponseError(401, "Access denied");
+
+        return query;
     }
 }
