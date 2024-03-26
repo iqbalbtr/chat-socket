@@ -31,7 +31,7 @@ module.exports = {
     },
     list: async (req, res, next) => {
         try {
-            const userId = req.locals.decrypt_token.id;
+            const userId = res.locals.decrypt_token.id;
             const result = await contactService.list(userId);
             res.status(200).json({result});
         } catch (e) {
