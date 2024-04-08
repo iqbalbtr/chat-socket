@@ -2,60 +2,85 @@ import React from 'react'
 import style from "../../styles/chat.module.css"
 import Modal from '@components/core/Modal';
 import MessageMenuList from '../core/MessageMenuList';
-import useCookie from '@hooks/useCookie';
-
-type ChatType = {
-    id: number,
-    username: string;
-    from: string;
-    to: string;
-    msg: string;
-    timestamp: string;
-    read: boolean;
-}
+import { useSession } from '@providers/AuthProvider';
+import { MsgType } from '@contexts/chat/ChatContext';
 
 function MessageCard({
     data
 }: {
-    data: ChatType
+    data: MsgType
 }) {
 
     const [tglChat, setTglChat] = React.useState(false);
-    const user = "Alice";
+    const { user } = useSession();
+    const current: string = "private"
+
+    function getTimeMsg(date: number){
+        const now = new Date(date);
+
+        return `${now.getHours()}:${now.getMinutes()}`
+    }
 
     return (
         <div
             onClick={() => setTglChat(pv => !pv)}
             className={style.message_card}
             style={{
-                justifyContent: data.username === user ? "flex-end" : "flex-start"
+                justifyContent: data.info.from === user.username ? "flex-end" : "flex-start"
             }}
         >
             {
-                data.username !== user &&
-                <span className={style.message_card_profile}>{data.username.charAt(0).toUpperCase()}</span>
+                data.info.from !== user.username && current === "group" &&
+                <span className={style.message_card_profile}>{data.info.from.charAt(0).toUpperCase()}</span>
             }
             <div>
-                <h5
+                {
+                    current === "group" && (
+                        <h5
+                            style={{
+                                textAlign: data.info.from === user.username ? "right" : 'left'
+                            }}
+                        >{data.info.from === user.username ? "You" : data.info.from}</h5>
+                    )
+                }
+                <div
+                    className={style.message_card_container}
                     style={{
-                        textAlign: data.username === user ? "right" : 'left'
+                        position: "relative",
+                        borderRadius: user.username === data.info.from ? "12px 12px 0" : "12px 12px 12px 0px"
                     }}
-                >{data.username === user ? "You" : data.username}</h5>
-                <div className={style.message_card_container}>
+                >
+                    {
+                        data.pull.status && (
+                            <div style={{
+                                padding: 6,
+                                marginBottom: 3,
+                                border: "1px solid var(--outline-color)",
+                                borderRadius: 6,
+                            }}>
+                                {
+                                    data.fwd && data.fwd !== current && <span style={{color: "red"}}>Terusan</span>
+                                }
+                                <h6 style={{marginBottom: 4}}>{data.pull.data?.info.from === user.username ? "Kamu" : data.pull.data?.info.from}</h6>
+                                <p>{data.pull.data?.msg}</p>
+                            </div>
+                        )
+                    }
                     <p>{data.msg}</p>
-                    <span>12:55</span>
+                    <span>{getTimeMsg(data.info.timestamp)}</span>
                     {
                         tglChat && (
                             <Modal
                                 open={tglChat}
                                 setOpen={setTglChat}
                                 filter={false}
+                                center={false}
                                 styles={{
-                                    right: data.username !== user ? "-10px" : "",
-                                    left: data.username === user ? "-90px" : ""
+                                    right: data.info.from !== user.username ? "" : "85px",
+                                    left: data.info.from === user.username ? "" : "106%",
                                 }}
                             >
-                                <MessageMenuList />
+                                <MessageMenuList  msg={data} setTgl={setTglChat} />
                             </Modal>
                         )
                     }

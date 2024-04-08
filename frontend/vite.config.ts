@@ -34,6 +34,9 @@ export default defineConfig({
       {
         find: '@services',
         replacement: path.resolve(__dirname, 'src/services')
+      }, {
+        find: '@contexts',
+        replacement: path.resolve(__dirname, 'src/contexts')
       }
     ]
   }

@@ -1,33 +1,30 @@
-import React from 'react'
-import ChatHeader from './fragments/ChatHeader';
-import MessageCard from './fragments/cards/MessageCard';
-import SendMessage from './fragments/SendMessage';
-import _dummy_chat from "../../assets/json/chat.json"
+// import React from 'react'
+import ContactMessageContainer from './fragments/contact/ContactMessageContainer';
+import NothingChat from './NothingChat';
+import ChatListMessage from './fragments/message/ChatListMessage';
+import { useChat } from '@contexts/chat/ChatContext';
 
 function ChatContainer() {
+
+  const { chatType, tgl: { tglModal } } = useChat();
+
   return (
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
+        width: "100%"
       }}
     >
-      <ChatHeader />
-      <div
-        style={{
-          maxHeight: "73.5vh",
-          background: "var(--bg-primary-color)",
-          overflowY: "scroll",
-        }}
-      >
-
-        {
-          _dummy_chat.map(data => (
-            <MessageCard key={data.id} data={data} />
-          ))
+      {
+        chatType !== "idle" ? (
+          <>
+            <ChatListMessage />
+          </>
+        ) : (
+          <NothingChat />
+          )
         }
-      </div>
-      <SendMessage />
+        {tglModal && <ContactMessageContainer />}
     </div>
   )
 }

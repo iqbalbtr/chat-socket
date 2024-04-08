@@ -1,19 +1,40 @@
 import React from 'react'
-import style from "../styles/chat.module.css"
+import style from "../../styles/chat.module.css"
 import Modal from '@components/core/Modal';
-import ContactMenuList from './core/ContactMenuList';
+import ContactMenuList from '../core/ContactMenuList';
+import { useChat } from '@contexts/chat/ChatContext';
+import { useContact } from '@contexts/chat/ContactContext';
 
 function ChatHeader() {
 
     const [tglHeader, setTglHeader] = React.useState(false);
+    const { tgl: { fn: { setTglModal } } } = useChat();
+    const { contact } = useContact();
+    const { current } = useChat();
+
+    function getLastActive() {
+        const find = contact.find(con => con.username === current.username);
+        if(!find) return;
+        if (!find.lastActive) {
+            return ""
+        } else {
+            if (find.lastActive.status) {
+                return 'online'
+            } else {
+                const date = new Date(find.lastActive.time);
+                return `Last active  ${date.getHours()}:${date.getMinutes()}`
+            }
+        }
+    }
+
 
     return (
         <div className={style.header_chat}>
-            <div className={style.header_chat_profile}>
-                <span>A</span>
+            <div className={style.header_chat_profile} onClick={() => setTglModal(pv => !pv)}>
+                <span>{current.name?.charAt(0).toUpperCase()}</span>
                 <div>
-                    <h3>Iqbal</h3>
-                    <span>Last active 12:45</span>
+                    <h3>{current.name}</h3>
+                    <span>{getLastActive()}</span>
                 </div>
             </div>
             <div>
@@ -34,9 +55,9 @@ function ChatHeader() {
                         open={tglHeader}
                         setOpen={setTglHeader}
                         filter={false}
+                        center={false}
                         styles={{
-                            bottom: 0,
-                            left: "-100px",
+                            right: "120px"
                         }}
                     >
                         <ContactMenuList />

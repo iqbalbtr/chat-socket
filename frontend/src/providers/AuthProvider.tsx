@@ -65,6 +65,8 @@ function AuthProvider({
         } else {
             setStatus("Authorized");
             setUser(res.result.user);
+            socket.connect();
+            socket.emit("login", user.username)
         }
     }, [user, status])
 
@@ -85,6 +87,7 @@ function AuthProvider({
             setUser({});
             setStatus("Unauthrorized");
             navigate("/");
+            socket.emit("logout", user.username)
             socket.disconnect();
         }
     }, [user, status])
@@ -144,6 +147,7 @@ function AuthProvider({
         }
 
     }, [pathname, status])
+    
 
     return (
         <AuthContext.Provider value={{ status, user, login, logout }}>

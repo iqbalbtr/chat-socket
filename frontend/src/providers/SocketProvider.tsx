@@ -42,26 +42,28 @@ function SocketProvider(props: { children: React.ReactNode }) {
         });
         setStatus(false);
     }, [status, auth.user]);
-
-    useEffect(() => {
-
-        socket.on(`private-message`, (msg) => {
-            console.log(msg);
-
-        })
-
-        socket.on("group-message", (msg) => {
-            console.log(msg);
-        })
-
-    }, [])
-
+    
     useEffect(() => {
         if (status) return;
         if (auth.status === "Authorized") {            
             connect();
         }
     }, [auth.user, auth.status])
+
+    React.useEffect(() => {
+        socket.on("connect", () => {
+            console.log("your status", socket.connected);
+        })
+
+        socket.on("disconnect", () => {
+            console.log("your status", socket.disconnected);
+        })
+
+        return () => {
+            socket.off("connect")
+            socket.off("disconnect")
+        }
+    },[])
 
     return (
         <SocketContext.Provider

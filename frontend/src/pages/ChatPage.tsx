@@ -1,7 +1,6 @@
 import MainLayout from '@components/layouts/MainLayout';
 import ChatContainer from '@components/pages/chat/ChatContainer';
 import ContactContainer from '@components/pages/chat/ContactContainer';
-import Header from '@components/pages/chat/Header';
 
 function ChatPage() {
 
@@ -11,15 +10,10 @@ function ChatPage() {
         minHeight: "100vh",
         width: "100%",
         position: "fixed",
+        display: "flex"
       }}>
-        <Header />
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "25% 75%"
-        }}>
-          <ContactContainer/>
-          <ChatContainer />
-        </div>
+        <ContactContainer />
+        <ChatContainer />
       </div>
     </MainLayout>
   )

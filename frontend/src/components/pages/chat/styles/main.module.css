@@ -1,5 +1,5 @@
 .header{
-    height: 10vh;
+    height: 60px;
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -7,6 +7,7 @@
     align-items: center;
     z-index: 99;
     background: var(--primary-color);
+    position: relative;
 }
 
 .header > div {
@@ -29,13 +30,44 @@
     flex-direction: column;
     gap: 12px;
     border-radius: 12px;
-    position: absolute;
-    top: 0px;
-    right: 0;
+    box-shadow: 0px 4px 36px -4px rgba(0,0,0,0.2);
 }
 
 .menu_list > button {
     text-align: left;
     cursor: pointer;
     padding: 4px;
+}
+
+.profile_modal {
+    width: 350px;
+    height: 350px;
+    background-color: var(--primary-color);
+    border-radius: 6px;
+    padding: 24px 12px;
+    border-radius: 12px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile_modal_img {
+    width: 200px;
+    font-size: 88px;
+    aspect-ratio: 1/1;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-color);
+    margin-bottom: 24px;
+}
+
+.profile_modal > div {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
 }

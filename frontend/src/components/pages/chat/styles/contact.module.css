@@ -1,18 +1,20 @@
 .contact_container{
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 12px;
     background-color: var(--thrid-color);
+    max-width: 40%;
+    width: 40%;
+    position: relative;
 }
 
 .contact_list {
     height: 77vh;
     overflow-y: scroll;
+    padding: 0 12px;
 }
 
 .contact_card{
-    padding: 6px 12px;
+    padding: 8px 12px;
     display: flex;
     width: auto;
     gap: 12px;
@@ -20,11 +22,7 @@
     margin: 6px;    
     justify-content: space-between;
     cursor: pointer;
-}
-
-.contact_card:hover{
-    outline: .5px solid var(--outline-color);
-    border-radius: 12px;
+    border-bottom: 1px solid #a6a6a6;
 }
 
 .contact_card > div {
@@ -44,6 +42,11 @@
     outline: .5px solid var(--outline-color);
 }
 
+.contact_card:hover {
+    background-color: #c2c6cb;
+    border-radius: 8px;
+}
+
 .contact_card > div > div {
     display: flex;
     flex-direction: column;
@@ -59,5 +62,134 @@
     width: 100%;
     outline: none;
     padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.add_contact_container {
+    width: 200px;
+    padding: 12px 32px;
+    background-color: var(--secondary-color);
+    width: 400px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 6px;
+}
+
+.add_contact_container > h3 {
+    margin: 12px 0 28px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+
+.add_contact_field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 6px 0;
+    width: 100%;
+}
+
+.add_contact_field > label {
+    font-size: 18px;
+    text-align: left;
+}
+
+.add_contact_field > input {
+    padding: 6px 12px;
+    border-radius: 3px;
+}
+
+.add_contact_container > button {
+    width: 100%;
+    margin: 32px 0;
+    padding: 8px;
+    background: var(--primary-color);
+    border-radius: 6px;
+}
+
+.contact_modal_header{
+    display: flex;
+    height: 60px;
+    gap: 16px;
+    padding: 0 18px;
+    align-items: center;
+    background: var(--primary-color);
+}
+
+.contact_modal_container {
+    background: var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;   
+    width: 100%;
+}
+
+.contact_modal_profile{
+    background-color: var(--secondary-color);
+    display: flex;
+    padding: 24px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.contact_modal_profile > p {
+    color: var(--outline-color)
+}
+
+.contact_modal_profile > span {
+    width: 155px;
+    aspect-ratio: 1/1;
     border-radius: 999px;
+    background-color: var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 85px;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.contact_modal_profile > input {
+    margin-top: 12px;
+    background: transparent;
+    text-align: center;
+    font-size: 24px;
+}
+
+.contact_modal_profile > input:focus {
+    color: var(--outline-color);
+}
+
+.contact_modal_action_container {
+    margin-top: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-direction: column;
+    background-color: var(--secondary-color);
+    padding: 12px;
+}
+
+.contact_modal_action{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+    padding-bottom: 22px;
+}
+
+.contact_modal_action > button {
+    padding: 12px 34px;
+    font-size: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--primary-color);
+
+}
+.contact_modal_action > button:hover {
+    background-color: var(--primary-color);
+    border-radius: 4px;
 }

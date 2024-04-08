@@ -1,7 +1,12 @@
-import React from 'react'
 import style from "../../styles/chat.module.css"
+import { useMessage } from '@contexts/chat/MessageContext'
+import { useChat } from '@contexts/chat/ChatContext';
 
 function ContactMenuList() {
+
+  const { fn: { removeAllMessage } } = useMessage();
+  const { current } = useChat();
+
   return (
     <div
       className={style.container_list_menu}
@@ -10,10 +15,18 @@ function ContactMenuList() {
       }}
     >
       <button>
-        Bagikan
+        Info kontak
+      </button>
+      <button
+      onClick={() => removeAllMessage(current.username!)}
+      >
+        Hapus chat
       </button>
       <button>
-        Hapus chat
+        Arsipkan
+      </button>
+      <button>
+        Bersihkan
       </button>
     </div>
   )

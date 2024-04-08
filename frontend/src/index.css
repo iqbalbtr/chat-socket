@@ -1,11 +1,11 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
 }
 
-:root{
+:root {
     --primary-color: #979ca4;
     --secondary-color: #bcc1c7;
     --thrid-color: #cbd5e1;
@@ -28,4 +28,18 @@ input {
     outline: none;
     border: 1px solid var(--outline-color);
     border: none;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    margin: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--outline-color);
+    border-radius: 999px;
 }

@@ -1,23 +1,26 @@
 .send_message {
-    position: fixed;
-    height: 200px;
-    width: 75%;
-    padding: 12px 18px;
+    width: 100%;
+    position: relative;
+}
+
+.send_message_container {
+    padding: 12px;
     display: flex;
     gap: 12px;
     align-items: start;
     background-color: var(--secondary-color);
     transition: all .4s ease-in-out;
+    height: 300px;
 }
 
-.send_message > input {
+.send_message_container > input {
     width: 100%;
     outline: none;
     padding: 8px 12px;
-    border-radius: 999px;
+    border-radius: 8px;
 }
 
-.send_message > button {
+.send_message_container > button {
     border: none;
     padding: 4px 12px;
     background: transparent;
@@ -49,11 +52,11 @@
     display: flex;
     padding: 8px;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     outline: 1px solid;
-    border-radius: 12px;
     max-width: 300px;
-    position: relative;
+    height: auto;
+    min-width: 70px;
 }
 .message_card_container > span{
     text-align: right;
@@ -68,7 +71,20 @@
     display: flex;
     flex-direction: column;
     align-items: start;
-    gap: 5px;
+    gap: 8px;
+    box-shadow: 0px 4px 36px -4px rgba(0,0,0,0.2);
+    min-width: 150px;
+}
+
+.container_list_menu > button {
+    padding: 8px;
+}
+
+.container_list_menu > button:hover {
+    text-align: left;
+    border-radius: 4px;
+    background-color: var(--primary-color);
+    width: 100%;
 }
 
 .header_chat{
@@ -76,7 +92,7 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
     padding: 6px 12px;
     align-items: center;
 }
@@ -85,6 +101,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    cursor: pointer;
 }
 .header_chat_profile > div {
     display: flex;
