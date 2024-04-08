@@ -52,14 +52,6 @@ io.use(authMiddleware.socket);
 web.use(public_api);
 web.use(private_api);
 
-// io.use((socket, next) => {
-//     socket.conn.transport.once("headers", (headers) => {
-//         headers["set-cookie"] = "sess=test;"
-//     })
-    
-//     next();
-// })
-
 // socket
 io.on("connection", (socket) => {
     const socketProvider = require("./socket")(socket);

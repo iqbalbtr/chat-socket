@@ -50,7 +50,7 @@ module.exports = {
     logout: async(req) => {
         const count = await prisma.user.findFirst({
             where: {
-                token: req.token
+                token: req.auth_token
             }
         })
 

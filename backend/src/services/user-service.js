@@ -19,15 +19,23 @@ module.exports = {
         
         if (count >= 1) throw new ResponseError(400, "User already exist");
 
-        return await prisma.user.create({
+        const create = await prisma.user.create({
             data: {
                 username: req_valid.username,
-                password: password
+                password: password,
+                contact_list: {
+                    create: {}
+                }
             },
             select: {
-                username: true,
+                id: true,
+                username: true
             }
-        })
+        });
+
+        return {
+            username: create.username
+        }
     },
     exist: async(req) => {
         const query = await prisma.user.findFirst({

@@ -4,7 +4,8 @@ module.exports = {
     create: async (req, res, next) => {
         try {
             const body = req.body;
-            const result = await contactService.create(body);
+            const contact_id = res.locals.decrypt_token.contact_id;
+            const result = await contactService.create(contact_id, body);
             res.status(200).json({ result });
         } catch (e) {
             next(e);

@@ -1,6 +1,6 @@
 let client_active = {
     count: 0,
-    users: []
+    users: [],
 };
 
 module.exports = (socket) => {
@@ -35,13 +35,33 @@ module.exports = (socket) => {
             })
         }
     }
+    socket.broadcast.emit("user-status", client_active.users.filter(user => user.active));
 
     console.log("User active => ", client_active.users.map((client) => ({ username: client.username, active: client.active })));
     console.log("User count => ", client_active.count)
 
     return {
         on_private: async (msg) => {
-            socket.to(msg.to).emit("private-message", msg);
+            const find = client_active.users.find(user => user.username === msg.info.to);
+            console.log({find});
+            if(!find || !find.active){
+                client_active.users.map(user => {
+                    if(user.username === msg.info.to){
+                        return {
+                            ...user,
+                            pendingMsg: [
+                                ...user.pendingMsg,
+                                msg
+                            ]
+                        }
+                    } else {
+                        return user
+                    }
+                })
+            } else {
+                socket.to(msg.info.to).emit("private-message", msg);
+            }
+            console.log(client_active.users);
         },
         disconnect: async () => {
             client_active = {
@@ -58,6 +78,7 @@ module.exports = (socket) => {
                 })
             }
 
+            socket.broadcast.emit("user-status", client_active.users.filter(user => !user.active));
             console.log(`${current_user.username} has been disconnect`);
             console.log("disconnect =>", client_active.users.map((client) => ({ username: client.username, active: client.active })));
         },
@@ -67,12 +88,7 @@ module.exports = (socket) => {
         on_logout: async (value) => {
             client_active = {
                 count: client_active.count - 1,
-                users: client_active.users.filter(client => {
-                    return (
-                        client.username !== value.username &&
-                        client.token !== value.token
-                    )
-                })
+                users: client_active.users.filter(client => client.username !== value)
             }
             console.log("logout => ", client_active.users.map((client) => ({ username: client.username, active: client.active })));
         }

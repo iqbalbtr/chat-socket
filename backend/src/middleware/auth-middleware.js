@@ -30,7 +30,7 @@ module.exports = {
 
             next();
         } catch (e) {
-            console.log(`Access denied for ${socket.id}, message ${e.message}`);
+            console.log(`Access denied for "${socket.id}", message ${e.message}`);
         }
     },
     api: async (req, res, next) => {
@@ -46,10 +46,20 @@ module.exports = {
                 where: {
                     username: verify.username,
                     token: _token
+                },
+                include: {
+                    contact_list: {
+                        select: {
+                            id: true
+                        }                        
+                    }
                 }
             })
-            res.locals.decrypt_token = verify;
             if (!query) throw new ResponseError(401, "Access denied");
+            res.locals.decrypt_token = {
+                contact_id: query.contact_list.id,
+                ...verify
+            };
             next();
         } catch (e) {
             next(e);
