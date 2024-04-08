@@ -1,12 +1,11 @@
-import { useSocket } from '@providers/SocketProvider';
-import React, { useRef } from 'react'
+import React from 'react'
 import style from "./form.module.css"
 import { Link } from 'react-router-dom';
 import { useSession } from '@providers/AuthProvider';
 
 function LoginForm() {
 
-    const form = useRef<HTMLFormElement | null>(null);
+    const form = React.useRef<HTMLFormElement | null>(null);
     const { login, status } = useSession();
 
     async function handleLogin(e: any) {
@@ -44,8 +43,9 @@ function LoginForm() {
                         onClick={handleLogin}
                         type='submit'
                         className={style.submit}
+                        disabled={status === "loading"}
                     >
-                        Login
+                        {status === "loading" ? "Loading.." : "Masuk"}
                     </button>
                 </div>
             </form>

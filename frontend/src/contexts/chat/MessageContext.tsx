@@ -17,7 +17,7 @@ type ContextType = {
         pullMessage: (id: string) => void;
         removePull: () => void;
         removeMessage: (id: string, username: string, callback: (err: string, result?: MsgType) => void) => void;
-        removeAllMessage: (username: string) => void;
+        removeAllMessage: (username: string, local: boolean) => void;
         handleForward: (msg: MsgType) => void;
         removeForward: () => void;
     }
@@ -183,7 +183,7 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         }
     }, [list]);
 
-    const removeAllMessage = React.useCallback((username: string) => {
+    const removeAllMessage = React.useCallback((username: string, local: boolean) => {
 
         // deleting chat if same cuurent
         if (current.username === username) {
@@ -191,7 +191,9 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         }
 
         // remove data from local
-        window.localStorage.removeItem(`_${username}`);
+        if(local){
+            window.localStorage.removeItem(`_${username}`);
+        }
 
         // reset last msg
         storeLastMsg().store(current.username!, "", true);

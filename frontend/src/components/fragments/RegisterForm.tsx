@@ -1,35 +1,31 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import style from "./form.module.css"
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSession } from '@providers/AuthProvider';
 
 function RegisterForm() {
-    const form = useRef<HTMLFormElement | null>(null);
+    const form = React.useRef<HTMLFormElement | null>(null);
+    const { register, status } = useSession();
+    const navigate = useNavigate();
 
     async function handleRegister(e: any) {
+
         e.preventDefault();
         const inputs = new FormData(form.current!);
-        try {
-            const response = await fetch("http://localhost:8080/auth/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    username: inputs.get("username"),
-                    password: inputs.get("password")
-                })
-            });
-        
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        const user = inputs.get("username") as string;
+        const pass = inputs.get("password") as string;
+
+        if(!pass && !user) return;
+        register({
+            username: user,
+            password: pass
+        }, (err) => {
+            if(err){
+                alert(err)
+            } else {
+                navigate("/auth/login")
             }
-        
-            const responseData = await response.json();
-            console.log("Registration successful:", responseData);
-        } catch (error) {
-            console.error("Error during registration:", error);
-        }
-        
+        })
     }
 
     return (
@@ -51,7 +47,7 @@ function RegisterForm() {
                         type='submit'
                         className={style.submit}
                     >
-                        Register
+                        {status === "loading" ? "Loading.." : "Register"}
                     </button>
                 </div>
             </form>

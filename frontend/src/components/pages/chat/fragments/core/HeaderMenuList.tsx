@@ -7,7 +7,7 @@ import HeaderProfileModal from '../contact/HeaderProfileModal';
 
 function HeaderMenuList() {
 
-  const { logout } = useSession();
+  const { status, logout } = useSession();
   const [tgPrfl, setTglPrfl] = React.useState<boolean>(false);
   const [addTgl, setAddTgl] = React.useState<boolean>(false);
 
@@ -39,8 +39,11 @@ function HeaderMenuList() {
       <button>
         Buat Grup
       </button>
-      <button onClick={() => logout()}>
-        Keluar
+      <button>
+        Setelan
+      </button>
+      <button onClick={() => logout()} disabled={status === "loading"}>
+        {status === "loading" ? "Loading..." : "Keluar"}
       </button>
     </div>
   )

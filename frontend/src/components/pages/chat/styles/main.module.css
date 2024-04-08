@@ -24,19 +24,23 @@
 .menu_list{
     width: 150px;
     height: auto;
-    padding: 16px;
-    background-color: var(--primary-color);
+    padding: 14px;
+    background-color: var(--secondary-color);
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0px 4px 36px -4px rgba(0,0,0,0.2);
 }
 
 .menu_list > button {
     text-align: left;
     cursor: pointer;
-    padding: 4px;
+    padding: 8px;
+}
+
+.menu_list > button:hover {
+    background: var(--primary-color);
+    border-radius: 4px;
 }
 
 .profile_modal {

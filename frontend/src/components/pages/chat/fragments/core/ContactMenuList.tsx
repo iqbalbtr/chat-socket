@@ -5,7 +5,7 @@ import { useChat } from '@contexts/chat/ChatContext';
 function ContactMenuList() {
 
   const { fn: { removeAllMessage } } = useMessage();
-  const { current } = useChat();
+  const { current, tgl: { fn: { setTglModal } } } = useChat();
 
   return (
     <div
@@ -14,18 +14,18 @@ function ContactMenuList() {
         width: "120px"
       }}
     >
-      <button>
+      <button onClick={() => setTglModal(pv => !pv)}>
         Info kontak
       </button>
       <button
-      onClick={() => removeAllMessage(current.username!)}
+        onClick={() => removeAllMessage(current.username!, true)}
       >
         Hapus chat
       </button>
       <button>
         Arsipkan
       </button>
-      <button>
+      <button onClick={() => removeAllMessage(current.username!, false)}>
         Bersihkan
       </button>
     </div>

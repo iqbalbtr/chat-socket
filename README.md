@@ -1,6 +1,6 @@
-# WEB RTC SOCKET 
+# WEB SOCKET RTC 
 
-Project yang di bangun menggunakan express sebagai http protokol untuk bagian backend dan react vite pada frontend. Socket io digunakan untuk menjalakan secara realtime dalam menerima request dari sisi client ataupun menerima response dari sisi server ke sisi client.
+Project yang di bangun menggunakan express sebagai http protokol untuk bagian backend dan react vite pada frontend. Socket io digunakan untuk menjalakan web app secara realtime dalam menerima request dari sisi client ataupun menerima response dari sisi server ke sisi client menggunakan metadata.
 
 <br>
 

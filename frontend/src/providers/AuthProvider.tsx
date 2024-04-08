@@ -13,6 +13,7 @@ type ContextProps = {
     status: Partial<StatusProps>;
     login: (payload: PayloadProps) => Promise<void>;
     logout: () => Promise<void>;
+    register: (payload: {username: string, password: string}, callback: (err: string) => void) => Promise<void>;
 }
 type PayloadProps = {
     username: string;
@@ -22,8 +23,9 @@ type PayloadProps = {
 const AuthContext = React.createContext<ContextProps>({
     user: {},
     status: "Unauthrorized",
-    login: async (payload: PayloadProps) => { },
-    logout: async () => { }
+    login: async () => { },
+    logout: async () => { },
+    register: async () => {}
 });
 
 export function useSession() {
@@ -71,6 +73,7 @@ function AuthProvider({
     }, [user, status])
 
     const logout = React.useCallback(async () => {
+        setStatus("loading")
         const response = await fetch("http://localhost:8080/auth/logout", {
             method: "PATCH",
             headers: {
@@ -81,6 +84,7 @@ function AuthProvider({
 
         const res = await response.json();
         if (!response.ok) {
+            setStatus("Unauthrorized")
             setError(res.error.message);
             throw new Error(res.error);
         } else {
@@ -90,7 +94,28 @@ function AuthProvider({
             socket.emit("logout", user.username)
             socket.disconnect();
         }
-    }, [user, status])
+    }, [user, status]);
+
+    const register = React.useCallback(async (payload: { username: string, password: string }, callback: (err: string) => void) => {
+        setStatus("loading");
+        const response = await fetch("http://localhost:8080/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+
+        const responseData = await response.json();
+        if (!response.ok) {
+            setStatus("Unauthrorized")
+            callback(responseData.error)
+        }
+
+        setStatus("Unauthrorized");
+        callback("")
+    }, [status, user])
 
     const me = React.useCallback(async () => {
         const get = await fetch("http://localhost:8080/auth/me", {
@@ -147,10 +172,10 @@ function AuthProvider({
         }
 
     }, [pathname, status])
-    
+
 
     return (
-        <AuthContext.Provider value={{ status, user, login, logout }}>
+        <AuthContext.Provider value={{ status, user, login, logout, register }}>
             {children}
         </AuthContext.Provider>
     )
