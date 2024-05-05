@@ -1,7 +1,7 @@
 .contact_container{
     display: flex;
     flex-direction: column;
-    background-color: var(--thrid-color);
+    background-color: var(--bg-secondary);
     max-width: 40%;
     width: 40%;
     position: relative;
@@ -22,7 +22,7 @@
     margin: 6px;    
     justify-content: space-between;
     cursor: pointer;
-    border-bottom: 1px solid #a6a6a6;
+    border-bottom: 1px solid var(--icon-color);
 }
 
 .contact_card > div {
@@ -39,12 +39,13 @@
     width: 45px;
     aspect-ratio: 1/1;
     border-radius: 999px;
-    outline: .5px solid var(--outline-color);
+    outline: .5px solid var(--icon-color);
+    color: var(--icon-color);
 }
 
 .contact_card:hover {
-    background-color: #c2c6cb;
-    border-radius: 8px;
+    /* background-color: #c2c6cb; */
+    /* border-radius: 8px; */
 }
 
 .contact_card > div > div {
@@ -192,4 +193,23 @@
 .contact_modal_action > button:hover {
     background-color: var(--primary-color);
     border-radius: 4px;
+}
+
+.archive_container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.archive_btn{
+    width: 100%;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.archive_btn:hover {
+    background: var(--secondary-color);
 }

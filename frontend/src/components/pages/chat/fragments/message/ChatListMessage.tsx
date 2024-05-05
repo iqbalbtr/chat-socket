@@ -12,25 +12,26 @@ function ChatListMessage() {
     const container = useRef<HTMLDivElement | null>(null);
 
     React.useEffect(() => {
-        if(container.current){
+        if (container.current) {
             container.current.scrollTop = container.current.scrollHeight - container.current.clientHeight
         }
     }, [list, current.username])
 
     return (
         <div
-        style={{ position: "relative", width: "100%" }}
+            style={{ position: "relative", width: "100%" }}
         >
             <ChatHeader />
             <div
-            ref={container}
+                ref={container}
                 style={{
                     maxHeight: "83.5vh",
                     height: '83.4vh',
                     display: "flex",
                     flexDirection: "column",
-                    background: "var(--bg-primary-color)",
+                    background: "var(--bg-secondary)",
                     overflowY: "scroll",
+                    padding: "0 26px"
                 }}
             >
                 {

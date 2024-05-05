@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback, useState } from "react"
 import { Loading } from "@hooks/useFetch";
 import { useSession } from "@providers/AuthProvider";
 import { ContactType, localMsgType, useChat } from "./ChatContext";
@@ -6,6 +6,11 @@ import { useSocket } from "@providers/SocketProvider";
 
 type ContextType = {
     contact: ContactType[];
+    seacrh: {
+        status: boolean,
+        data: ContactType[],
+        byRead: boolean
+    };
     error: string;
     fn: {
         addContact: (payload: { username: string, name: string }, callback: (err: string, result?: ContactType) => void) => Promise<void>,
@@ -13,11 +18,18 @@ type ContextType = {
         updateContact: (payload: { id: number, name: string }, callback: (err: string) => void) => Promise<void>;
         storeLastMsg: () => { store: (user: string, msg: string, read: boolean) => void, read: (user: string) => void };
         addContactNew: (username: string) => void;
+        seacrhContact: (name: string) => void;
+        toggleByRead: () => void;
     }
 };
 
 const Context = React.createContext<ContextType>({
     contact: [],
+    seacrh: {
+        status: false,
+        data: [],
+        byRead: false
+    },
     error: "",
     fn: {
         addContact: async () => { },
@@ -25,6 +37,8 @@ const Context = React.createContext<ContextType>({
         removeContact: async () => { },
         updateContact: async () => { },
         storeLastMsg: () => ({ store: () => { }, read: () => { } }),
+        seacrhContact: () => { },
+        toggleByRead: () => {}
     }
 });
 
@@ -36,11 +50,23 @@ function ContactContext({ children }: { children: React.ReactNode }) {
 
     const [list, setList] = React.useState<ContactType[]>([]);
     const [listNew, setListNew] = React.useState<ContactType[]>([]);
+    const [search, setSearch] = React.useState<{status: boolean, byRead: boolean, data: ContactType[]}>({
+        status: false,
+        data: [],
+        byRead: false
+    });
     const [status, setStatus] = React.useState<Loading>("idle");
     const { user } = useSession();
     const [error, setError] = React.useState("");
     const { current, fn: { handleCurrent } } = useChat();
     const { socket } = useSocket();
+
+    const toggleBYRead = useCallback(() => {
+        setSearch(pv => ({
+            ...pv,
+            byRead: !pv.byRead
+        }))
+    }, [search])
 
     const getContact = React.useCallback(async () => {
         setStatus("loading");
@@ -290,6 +316,28 @@ function ContactContext({ children }: { children: React.ReactNode }) {
         }
     }, [list, listNew, current.username]);
 
+    const searchContact = React.useCallback((name: string) => {
+        
+        if(!name) return setSearch(pv => ({
+            ...pv,
+            status: false, 
+            data:[]
+        }))
+
+        setSearch(pv => ({
+            ...pv,
+            status: true,
+            data: list.filter(con => {
+                (
+                    con.name.includes(name.toLowerCase()) ||
+                    con.username.includes(name.toLowerCase()) && 
+                    con.lastMsg?.read === search.byRead
+                )
+            })
+        }))
+        
+    }, [list, listNew, current.username]);
+
     React.useEffect(() => {
         getContact()
 
@@ -321,6 +369,7 @@ function ContactContext({ children }: { children: React.ReactNode }) {
     return (
         <Context.Provider value={{
             contact: list,
+            seacrh: search,
             error: error,
             fn: {
                 addContact: addContact,
@@ -328,6 +377,8 @@ function ContactContext({ children }: { children: React.ReactNode }) {
                 updateContact: updateContact,
                 addContactNew: addContactNew,
                 storeLastMsg: storeLastMsg,
+                seacrhContact: searchContact,
+                toggleByRead: toggleBYRead
             }
         }}
         >

@@ -1,33 +1,17 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-    --primary-color: #979ca4;
-    --secondary-color: #bcc1c7;
-    --thrid-color: #cbd5e1;
-    --bg-primary-color: #f8fafc;
-    --bg-secondary-color: #d4d4d8;
-    --bg-third-color: #dcfce7;
-    --font-color: #f4f4f5;
-    --success-color: #4ade80;
-    --error-color: #dc2626;
-    --outline-color: #525252;
-}
-
-button {
-    border: none;
-    background: transparent;
-    outline: none;
-}
-
-input {
-    outline: none;
-    border: 1px solid var(--outline-color);
-    border: none;
+    --green-accent: #06cf9c;
+    --text-color: #e4eef0;
+    --green-primary: #005c4b;
+    --green-secondary: #025244;
+    --bg-primary: #202c33;
+    --bg-secondary: #111b21;
+    --icon-color: #aebbc2;
+    --message: #202c33;
+    --danger: #06cf9c;
 }
 
 ::-webkit-scrollbar {

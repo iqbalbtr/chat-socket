@@ -1,4 +1,3 @@
-import style from "../../styles/contact.module.css";
 import { ContactType, useChat } from '@contexts/chat/ChatContext';
 function ContactCard({
     data
@@ -12,28 +11,39 @@ function ContactCard({
 
         <div
             onClick={() => handleCurrent(data, "private")}
-            className={style.contact_card}
+            className="bg-bg-secondary px-3 my-1 w-full p-2 border-b-[1px] border-[#212c33] text-white"
         >
             <div
-            style={{
-                position: "relative",
-                width: "100%"
-            }}
+                className="flex w-full"
             >
-                <span>{data.name.charAt(0).toUpperCase()}</span>
-                <div>
-                    <h3>{data.name}</h3>
+                <span
+                className="w-[45px] h-[45px] aspect-square rounded-full bg-gray-500 flex items-center justify-center text-xl"
+                >
+                    {data.name.charAt(0).toUpperCase()}
+                </span>
+                <div
+                    className="ml-3 flex w-full justify-between items-start"
+                >
+                    <div
+                    >
+                        <h3 className="font-semibold">{data.name}</h3>
+                        <div>
+                            <p
+                            className="text-icon-color"
+                            >{data.lastMsg?.msg}</p>
+                        </div>
+                    </div>
                     <div>
-                        <p style={{ fontSize: 14, maxHeight: 20, maxWidth: 280, overflow: "hidden" }}>{data.lastMsg?.msg}</p>
+                        <p className="text-[.7rem]">Friday</p>
                     </div>
                 </div>
-                {data.lastMsg && !data.lastMsg?.read && <span style={{ 
-                    background: "var(--primary-color)", 
-                    width: "10px", 
-                    aspectRatio: "1/1", 
+                {data.lastMsg && !data.lastMsg?.read && <span style={{
+                    background: "var(--primary-color)",
+                    width: "10px",
+                    aspectRatio: "1/1",
                     position: "absolute",
                     right: 0
-                    }}></span>}
+                }}></span>}
             </div>
         </div>
     )

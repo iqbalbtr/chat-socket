@@ -12,7 +12,7 @@ function MessageMenuList({ msg, setTgl }: { msg: MsgType, setTgl: React.Dispatch
 
   return (
     <div
-      className={style.container_list_menu}
+      className="w-[240px] bg-hover-color p-6"
     >
       <button onClick={() => {
         handleForward(msg)

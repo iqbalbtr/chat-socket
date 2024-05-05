@@ -43,9 +43,9 @@ function HeaderProfileModal({
           <input type="text" value={username} disabled />
         </div>
         <div className={style.contact_modal_action_container}>
-          <h3 style={{ padding: 8 }}>Tentang</h3>
+          <h3>Tentang</h3>
           <div className={style.contact_modal_action}>
-            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Accusamus beatae nisi minima.</p>
+            <p style={{fontSize: 14}}>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Accusamus beatae nisi minima.</p>
           </div>
         </div>
       </div>
