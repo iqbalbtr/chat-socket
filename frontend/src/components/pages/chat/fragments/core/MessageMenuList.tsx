@@ -1,5 +1,4 @@
 import React from 'react'
-import style from "../../styles/chat.module.css"
 import Modal from '@components/core/Modal';
 import MessageForwadsModal from '../message/MessageForwadsModal';
 import { useMessage } from '@contexts/chat/MessageContext';
@@ -12,7 +11,7 @@ function MessageMenuList({ msg, setTgl }: { msg: MsgType, setTgl: React.Dispatch
 
   return (
     <div
-      className="w-[240px] bg-hover-color p-6"
+      className="w-[140px] bg-[#233138] p-3 gap-3 flex flex-col items-start"
     >
       <button onClick={() => {
         handleForward(msg)

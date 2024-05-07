@@ -14,7 +14,7 @@
     --danger: #06cf9c;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
     width: 5px;
     margin: 5px;
 }
@@ -26,4 +26,4 @@
 ::-webkit-scrollbar-thumb {
     background: var(--outline-color);
     border-radius: 999px;
-}
+} */

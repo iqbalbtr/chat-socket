@@ -1,17 +1,16 @@
-import style from "../../styles/main.module.css"
 import Modal from '@components/core/Modal'
-import HeaderMenuList from '../core/HeaderMenuList';
+import HeaderMenuList from '../../../core/HeaderMenuList';
 import { useSession } from '@providers/AuthProvider';
-import { useChat } from '@contexts/chat/ChatContext';
-import Profile from '../cards/Profile';
+import Profile from '../../../cards/Profile';
 import ContactAddModal from "./ContactAddModal";
 import React from "react";
+import { useContact } from '@contexts/chat/ContactContext';
 
 function HeaderContact() {
 
     const { user } = useSession();
-    const { tgl: { tglHead, fn: { setTglHead } } } = useChat();
     const [addTgl, setAddTgl] = React.useState(false);
+    const { tgl: { tglMenu, fn: { setTglMenu, setTglContent } } } = useContact();
 
     return (
         <div className={`w-full flex justify-between py-2 px-4 bg-bg-primary`}>
@@ -19,7 +18,7 @@ function HeaderContact() {
                 <Profile username={user.username || ""} width={40} />
             </div>
             <div style={{ position: "relative", display: "flex", gap: 24 }}>
-                <button onClick={() => setAddTgl(pv => !pv)}>
+                <button onClick={() => setTglContent("new_message")}>
                     <svg xmlns="http://www.w3.org/2000/svg" width={25} viewBox="0 0 24 24" id="comment-alt-plus">
                         <path fill="#aebbc2"
                             d="M15,9H13V7a1,1,0,0,0-2,0V9H9a1,1,0,0,0,0,2h2v2a1,1,0,0,0,2,0V11h2a1,1,0,0,0,0-2Zm4-7H5A3,3,0,0,0,2,5V15a3,3,0,0,0,3,3H16.59l3.7,3.71A1,1,0,0,0,21,22a.84.84,0,0,0,.38-.08A1,1,0,0,0,22,21V5A3,3,0,0,0,19,2Zm1,16.59-2.29-2.3A1,1,0,0,0,17,16H5a1,1,0,0,1-1-1V5A1,1,0,0,1,5,4H19a1,1,0,0,1,1,1Z"></path>
@@ -33,7 +32,7 @@ function HeaderContact() {
                 </button>
                 <button
                     style={{ position: "relative", cursor: "pointer" }}
-                    onClick={() => setTglHead(true)}
+                    onClick={() => setTglMenu(pv => !pv)}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width={25} viewBox="0 0 24 24" id="ellipsis-v">
                         <path fill="#aebbc2"
@@ -41,8 +40,8 @@ function HeaderContact() {
                     </svg>
                 </button>
                 <Modal
-                    open={tglHead}
-                    setOpen={setTglHead}
+                    open={tglMenu}
+                    setOpen={setTglMenu}
                     filter={false}
                     center={false}
                     styles={{

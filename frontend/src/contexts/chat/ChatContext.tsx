@@ -46,11 +46,9 @@ type ContextProps = {
         removeCurrent: () => void;
     },
     tgl: {
-        tglHead: boolean,
-        tglModal: boolean,
+        tglModal: "search" | "user_info" | "idle",
         fn: {
-            setTglHead: React.Dispatch<React.SetStateAction<boolean>>,
-            setTglModal: React.Dispatch<React.SetStateAction<boolean>>
+            setTglModal: React.Dispatch<React.SetStateAction<"search" | "user_info" | "idle">>
         }
     }
 }
@@ -63,10 +61,8 @@ const Context = React.createContext<ContextProps>({
         removeCurrent: () => { }
     },
     tgl: {
-        tglHead: false,
-        tglModal: false,
+        tglModal: "idle",
         fn: {
-            setTglHead: () => { },
             setTglModal: () => { }
         }
     }
@@ -85,8 +81,8 @@ function ChatContext({
 
     const [current, setCurrent] = React.useState<Partial<ContactType>>({});
     const [statusChat, setStatusChat] = React.useState<"idle" | "group" | "private">("idle");
-    const [tglHead, setTglHead] = React.useState<boolean>(false);
-    const [tglContact, setTglModal] = React.useState<boolean>(false);
+    const [tglContact, setTglModal] = React.useState<"search" | "user_info" | "idle">("idle");
+    
 
 
     // handle current user chat
@@ -109,10 +105,8 @@ function ChatContext({
                 removeCurrent: removeCurrent
             },
             tgl: {
-                tglHead: tglHead,
                 tglModal: tglContact,
                 fn: {
-                    setTglHead: setTglHead,
                     setTglModal: setTglModal
                 }
             }

@@ -1,7 +1,7 @@
 import React from 'react'
 import style from "../../styles/contact.module.css"
 import Modal from '@components/core/Modal';
-import ContactAddModal from './ContactAddModal';
+import ContactAddModal from './mainContent/components/ContactAddModal';
 import { ContactType, useChat } from '@contexts/chat/ChatContext';
 import { useContact } from '@contexts/chat/ContactContext';
 

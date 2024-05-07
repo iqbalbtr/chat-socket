@@ -1,4 +1,3 @@
-import style from "../../styles/chat.module.css"
 import { useMessage } from '@contexts/chat/MessageContext'
 import { useChat } from '@contexts/chat/ChatContext';
 import LockIcon from "@components/LockIcon";
@@ -12,7 +11,7 @@ function ContactMenuList() {
     <div
       className="w-[240px] bg-hover-color p-6 gap-4 flex flex-col items-start"
     >
-      <button onClick={() => setTglModal(pv => !pv)}>
+      <button onClick={() => setTglModal(pv => ["user_info", "search"].includes(pv) ? "idle" : "user_info")}>
         Info kontak
       </button>
       <button

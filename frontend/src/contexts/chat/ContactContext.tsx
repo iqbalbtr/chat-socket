@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react"
+import React, { Dispatch, SetStateAction, useCallback, useState } from "react"
 import { Loading } from "@hooks/useFetch";
 import { useSession } from "@providers/AuthProvider";
 import { ContactType, localMsgType, useChat } from "./ChatContext";
@@ -11,6 +11,14 @@ type ContextType = {
         data: ContactType[],
         byRead: boolean
     };
+    tgl: {
+        tglContent: ComponentContactType,
+        tglMenu: boolean
+        fn: {
+            setTglMenu: Dispatch<SetStateAction<boolean>>;
+            setTglContent: (name: ComponentContactType) => void
+        }
+    }
     error: string;
     fn: {
         addContact: (payload: { username: string, name: string }, callback: (err: string, result?: ContactType) => void) => Promise<void>,
@@ -30,6 +38,14 @@ const Context = React.createContext<ContextType>({
         data: [],
         byRead: false
     },
+    tgl: {
+        tglContent: "idle",
+        tglMenu: false,
+        fn: {
+            setTglMenu: () => { },
+            setTglContent: () => { }
+        }
+    },
     error: "",
     fn: {
         addContact: async () => { },
@@ -38,7 +54,7 @@ const Context = React.createContext<ContextType>({
         updateContact: async () => { },
         storeLastMsg: () => ({ store: () => { }, read: () => { } }),
         seacrhContact: () => { },
-        toggleByRead: () => {}
+        toggleByRead: () => { }
     }
 });
 
@@ -46,16 +62,22 @@ export function useContact() {
     return React.useContext(Context);
 }
 
+export const componntContact = ["status", "group", "profile", "settings", "new_message"];
+export type ComponntContactActive = "status" | "group" | "profile" | "settings" | "new_message"
+export type ComponentContactType = "idle" | "status" | "group" | "profile" | "settings" | "new_message";
+
 function ContactContext({ children }: { children: React.ReactNode }) {
 
     const [list, setList] = React.useState<ContactType[]>([]);
     const [listNew, setListNew] = React.useState<ContactType[]>([]);
-    const [search, setSearch] = React.useState<{status: boolean, byRead: boolean, data: ContactType[]}>({
+    const [search, setSearch] = React.useState<{ status: boolean, byRead: boolean, data: ContactType[] }>({
         status: false,
         data: [],
         byRead: false
     });
     const [status, setStatus] = React.useState<Loading>("idle");
+    const [tglContent, setTglContent] = useState<ComponentContactType>("idle")
+    const [tglMenu, setTglMenu] = useState<boolean>(false)
     const { user } = useSession();
     const [error, setError] = React.useState("");
     const { current, fn: { handleCurrent } } = useChat();
@@ -317,11 +339,11 @@ function ContactContext({ children }: { children: React.ReactNode }) {
     }, [list, listNew, current.username]);
 
     const searchContact = React.useCallback((name: string) => {
-        
-        if(!name) return setSearch(pv => ({
+
+        if (!name) return setSearch(pv => ({
             ...pv,
-            status: false, 
-            data:[]
+            status: false,
+            data: []
         }))
 
         setSearch(pv => ({
@@ -330,22 +352,30 @@ function ContactContext({ children }: { children: React.ReactNode }) {
             data: list.filter(con => {
                 (
                     con.name.includes(name.toLowerCase()) ||
-                    con.username.includes(name.toLowerCase()) && 
+                    con.username.includes(name.toLowerCase()) &&
                     con.lastMsg?.read === search.byRead
                 )
             })
         }))
-        
+
     }, [list, listNew, current.username]);
+
+    const handleTglContent = React.useCallback((name: ComponentContactType) => {
+        setTglContent(pv => ["status", "group", "profile", "settings"].includes(pv) ? "idle" : name);
+        if (tglMenu) {
+            setTglMenu(false)
+        }
+
+    }, [tglContent, tglMenu]);
 
     React.useEffect(() => {
         getContact()
 
         socket.on("user-status", (val: any) => {
             // upadte contact if user onine or disconnect
-            for(const curr of val){
+            for (const curr of val) {
                 setList(pv => pv.map(con => {
-                    if(con.username === curr.username){
+                    if (con.username === curr.username) {
                         return {
                             ...con,
                             lastActive: {
@@ -357,7 +387,7 @@ function ContactContext({ children }: { children: React.ReactNode }) {
                         return con
                     }
                 }))
-            }            
+            }
         })
 
         return () => {
@@ -371,6 +401,14 @@ function ContactContext({ children }: { children: React.ReactNode }) {
             contact: list,
             seacrh: search,
             error: error,
+            tgl: {
+                tglContent: tglContent,
+                tglMenu: tglMenu,
+                fn: {
+                    setTglContent: handleTglContent,
+                    setTglMenu: setTglMenu
+                }
+            },
             fn: {
                 addContact: addContact,
                 removeContact: removeContact,

@@ -1,5 +1,5 @@
 import React from 'react'
-import style from "../../styles/contact.module.css"
+import style from "../../../../styles/contact.module.css"
 import { useChat } from '@contexts/chat/ChatContext'
 import { useContact } from '@contexts/chat/ContactContext';
 

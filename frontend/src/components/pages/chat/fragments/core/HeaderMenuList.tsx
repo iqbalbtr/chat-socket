@@ -1,11 +1,10 @@
 import React from 'react'
-import style from "../../styles/main.module.css"
 import { useSession } from '@providers/AuthProvider'
 import Modal from '@components/core/Modal';
-import ContactAddModal from '../contact/ContactAddModal';
-import HeaderProfileModal from '../contact/HeaderProfileModal';
+import ContactAddModal from '../contact/mainContent/components/ContactAddModal';
 import LockIcon from '@components/LockIcon';
 import { colors } from '../../../../../constants/color';
+import { useContact } from '@contexts/chat/ContactContext';
 
 
 const lock_class = 'flex gap-2 justify-center items-center';
@@ -13,8 +12,9 @@ const lock_class = 'flex gap-2 justify-center items-center';
 function HeaderMenuList() {
 
   const { status, logout } = useSession();
-  const [tgPrfl, setTglPrfl] = React.useState<boolean>(false);
+  const { tgl: { fn: { setTglContent } } } = useContact();
   const [addTgl, setAddTgl] = React.useState<boolean>(false);
+  const { tgl: { fn: { setTglMenu } } } = useContact()
 
   return (
     <div
@@ -37,18 +37,25 @@ function HeaderMenuList() {
           <ContactAddModal />
         </Modal>
         <button
-          onClick={() => setTglPrfl(pv => !pv)}
+          onClick={() => {
+            setTglContent("profile")
+          }}
         >
           Lihat Profile
         </button>
-        {tgPrfl && <HeaderProfileModal onClose={setTglPrfl} />}
-        <button className={lock_class}>
+        <button
+          onClick={() => {
+            setTglContent("group")
+          }}
+        >
           Buat Grup
-          <LockIcon />
         </button>
-        <button className={lock_class}>
+        <button
+          onClick={() => {
+            setTglContent("settings")
+          }}
+        >
           Setelan
-          <LockIcon />
         </button>
         <button onClick={() => logout()} disabled={status === "loading"}>
           {status === "loading" ? "Loading..." : "Keluar"}

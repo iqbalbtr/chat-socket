@@ -1,5 +1,5 @@
 import LockIcon from "@components/LockIcon"
-import { colors } from "../../../../../constants/color"
+import { colors } from "../../../../../../../constants/color"
 
 function ArchiveContact() {
     return (

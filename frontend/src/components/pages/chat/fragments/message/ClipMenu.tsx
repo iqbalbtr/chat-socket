@@ -2,17 +2,11 @@
 function ClipMenu() {
   return (
     <div
-    style={{
-        width: "440px",
-        height: "340px",
-        display: "flex",
-        justifyContent: 'center',
-        alignItems: "center",
-        background: "var(--secondary-color)",
-        borderRadius: 12
-    }}
+      className="absolute w-[180px] left-0 bottom-[150%] rounded-lg flex flex-col gap-3 bg-hover-color p-3 items-start text-white"
     >
-      <h2>No Konten</h2>
+      <button>Document</button>
+      <button>Photo</button>
+      <button>Contact</button>
     </div>
   )
 }
