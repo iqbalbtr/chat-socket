@@ -11,7 +11,13 @@ type LocalMessage = {
 type ContextType = {
     list: MsgType[],
     pull: MsgType | null;
-    forward: MsgType | null;
+    forward: MsgType[];
+    router: {
+        current: MessageRouterType[];
+        fn: {
+            handleMessageRouter: (name: MessageRouterType) => void
+        }
+    }
     fn: {
         sendMessage: ({ input, to, type, fwd }: { input: string, to: string, type: "group" | "private", pull?: MsgType, fwd?: string }, callback: (status: boolean, msg?: MsgType) => void) => void;
         pullMessage: (id: string) => void;
@@ -19,14 +25,19 @@ type ContextType = {
         removeMessage: (id: string, username: string, callback: (err: string, result?: MsgType) => void) => void;
         removeAllMessage: (username: string, local: boolean) => void;
         handleForward: (msg: MsgType) => void;
-        removeForward: () => void;
     }
 }
 
 const Context = React.createContext<ContextType>({
     list: [],
     pull: null,
-    forward: null,
+    forward: [],
+    router: {
+        current: ["idle"],
+        fn: {
+            handleMessageRouter: () => { }
+        }
+    },
     fn: {
         sendMessage: () => { },
         pullMessage: () => { },
@@ -34,10 +45,12 @@ const Context = React.createContext<ContextType>({
         removeMessage: () => { },
         removeAllMessage: () => { },
         handleForward: () => { },
-        removeForward: () => { }
     }
 });
 
+export type MessageType = "group" | "private" | "idle"
+export type MessageRouterType = "search" | "user_info" | "back" | "idle"
+export type MessageRouterActive = ["search", "user_info"]
 
 export function useMessage() {
     return React.useContext(Context)
@@ -47,7 +60,8 @@ function MessageContext({ children }: { children: React.ReactNode }) {
 
     const [list, setList] = React.useState<MsgType[]>([]);
     const [pull, setPull] = React.useState<MsgType | null>(null);
-    const [forward, setForwards] = React.useState<MsgType | null>(null);
+    const [forward, setForwards] = React.useState<MsgType[]>([]);
+    const [routerMessage, setRouterMessage] = React.useState<MessageRouterType[]>(["idle"]);
     const { user: { username } } = useSession();
     const { current, fn: { removeCurrent } } = useChat();
     const { socket } = useSocket();
@@ -160,7 +174,7 @@ function MessageContext({ children }: { children: React.ReactNode }) {
     const removeMessage = React.useCallback((id: string, username: string, callback: (err: string, result?: MsgType) => void) => {
         const find = list.find(msg => msg.id === id);
         if (find) {
-            
+
             // update list message
             const insert = list.filter(msg => msg.id !== id);
             setList(insert);
@@ -191,7 +205,7 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         }
 
         // remove data from local
-        if(local){
+        if (local) {
             window.localStorage.removeItem(`_${username}`);
         }
 
@@ -200,11 +214,20 @@ function MessageContext({ children }: { children: React.ReactNode }) {
     }, [list, current]);
 
     const handleForward = React.useCallback((msg: MsgType) => {
-        setForwards(msg);
+        setForwards(pv => 
+            pv.find(data => data.id === msg.id) ?
+            pv.filter(data => data.id !== msg.id) :
+            [...pv, msg]
+        );
     }, [list, current, forward]);
 
-    const removeForward = React.useCallback(() => {
-        setForwards(null);
+
+    const handleRouterMessage = React.useCallback((name: MessageRouterType) => {
+        setRouterMessage(pv =>
+            name === "back" ?
+                pv.slice(0, -1) :
+                [...pv, name]
+        )
     }, [list, current, forward]);
 
     React.useEffect(() => {
@@ -232,6 +255,12 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         <Context.Provider value={{
             list: list,
             pull: pull,
+            router: {
+                current: routerMessage,
+                fn: {
+                    handleMessageRouter: handleRouterMessage
+                }
+            },
             forward: forward,
             fn: {
                 pullMessage: pullMessage,
@@ -240,7 +269,6 @@ function MessageContext({ children }: { children: React.ReactNode }) {
                 removePull: removePull,
                 removeAllMessage: removeAllMessage,
                 handleForward: handleForward,
-                removeForward: removeForward
             }
         }}>
             {children}

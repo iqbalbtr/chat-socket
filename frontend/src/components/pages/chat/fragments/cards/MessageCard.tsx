@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import style from "../../styles/chat.module.css"
-import Modal from '@components/core/Modal';
-import MessageMenuList from '../core/MessageMenuList';
 import { useSession } from '@providers/AuthProvider';
 import { MsgType } from '@contexts/chat/ChatContext';
 import { colors } from '../../../../../constants/color';
+import MessageCardListMenu from '../listMenu/MessageCardListMenu';
+import ModalTransparent from '@components/core/ModalTransparent';
+import { useMessage } from '@contexts/chat/MessageContext';
+import Cheked from './Cheked';
 
 function MessageCard({
     data
@@ -12,10 +14,10 @@ function MessageCard({
     data: MsgType
 }) {
 
-    const [tglChat, setTglChat] = React.useState(false);
+    const [tglList, setTglList] = useState(false);
+    const { forward, fn: { handleForward } } = useMessage()
     const { user } = useSession();
-    const current: string = "private"
-
+    const current: string = "private";
 
     function getTimeMsg(date: number) {
         const now = new Date(date);
@@ -23,20 +25,38 @@ function MessageCard({
         return `${now.getHours()}:${now.getMinutes()}`
     }
 
+    const getExistForward = forward.find(msg => msg.id === data.id) ? true : false;
+
     return (
         <div
-
-            className={`w-full flex my-2 text-white`}
+            onClick={() => forward.length >= 1 ? handleForward(data) : null}
+            className={`w-full relative flex my-2 text-white ${getExistForward && "bg-bg-primary"} ${forward.length >= 1 && "cursor-pointer"}`}
             style={{
                 justifyContent: data.info.from === user.username ? "flex-end" : "flex-start"
             }}
         >
+
+
             {
+                //  Action forward if message exist on forward array and msg from same xurrent user 
+                forward.length >= 1 && data.info.from !== user.username && (
+                    <Cheked value={getExistForward} />
+                )
+                // Action forward if message exist on forward array
+            }
+
+
+
+            {/* {
                 data.info.from !== user.username && current === "group" &&
                 <span className={style.message_card_profile}>{data.info.from.charAt(0).toUpperCase()}</span>
-            }
+            } */}
+
+
+
+            {/* Outer container message start */}
             <div>
-                {
+                {/* {
                     current === "group" && (
                         <h5
                             style={{
@@ -46,7 +66,7 @@ function MessageCard({
                             {data.info.from === user.username ? "You" : data.info.from}
                         </h5>
                     )
-                }
+                } */}
 
 
                 {/* Message Body Start */}
@@ -59,49 +79,47 @@ function MessageCard({
                 >
 
 
-                    {/* Toggle list message menu */}
-
-                    <span
-                        onClick={() => setTglChat(pv => !pv)}
-                        className={`absolute right-0 top-0 rounded-full ${user.username === data.info.from ? "bg-green-primary" : "bg-hover-color"} hidden group-hover:flex`}>
-
-
-                        {/* Modal List message start */}
-                        {
-                            tglChat && (
-                                <Modal
-                                    open={tglChat}
-                                    setOpen={setTglChat}
-                                    filter={false}
-                                    center={false}
-                                    styles={{
-                                        position: "absolute",
-                                        left: data.info.from === user.username ? "-450%" : "120%",
-                                    }}
-                                >
-                                    <MessageMenuList msg={data} setTgl={setTglChat} />
-                                </Modal>
-                            )
-                        }
-                        {/* Modal List message end */}
+                    {/* Toggle list message menu button start */}
+                    {
+                        forward.length === 0 && (
+                            <button
+                                onClick={() => setTglList(pv => !pv)}
+                                className={`absolute right-0 shadow-lg top-0 hidden rounded-full ${user.username === data.info.from ? "bg-green-primary" : "bg-hover-color"} hidden group-hover:flex`}>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    width={30}
+                                    height={30}
+                                    id="angle-bottom-b">
+                                    <path
+                                        fill={colors.ICON_COLOR}
+                                        d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"
+                                    >
+                                    </path>
+                                </svg>
+                            </button>
+                        )
+                    }
+                    {/* Toggle list message menu button start */}
 
 
-                        {/* Icon List Messsage start */}
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            width={30}
-                            height={30}
-                            id="angle-bottom-b">
-                            <path
-                                fill={colors.ICON_COLOR}
-                                d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"
-                            >
-                            </path>
-                        </svg>
-                        {/* Icon List Messsage end */}
-                    </span>
-                    {/* Toggle List message End*/}
+                    {/* Modal List menu message start*/}
+                    {
+                        tglList && (
+                            <div className={`absolute ${data.info.from !== user.username ? "left-full ml-2" : "right-full mr-2"}`}>
+                                <div className='fixed top-0 z-10 left-0 min-h-screen w-full' onClick={() => setTglList(pv => !pv)}></div>
+                                <MessageCardListMenu
+                                    msg={data}
+                                    setTgl={setTglList}
+                                />
+                            </div>
+                        )
+                    }
+                    {/* Modal List menu message End*/}
+
+
+
+
 
                     {/* Message Reply Cards start */}
                     {
@@ -119,14 +137,15 @@ function MessageCard({
                                 <h6
                                     style={{ marginBottom: 4 }}
                                     className='text-green-accent'
-                                    >
-                                        {data.pull.data?.info.from === user.username ? "Kamu" : data.pull.data?.info.from}
+                                >
+                                    {data.pull.data?.info.from === user.username ? "Kamu" : data.pull.data?.info.from}
                                 </h6>
                                 <p>{data.pull.data?.msg}</p>
                             </div>
                         )
                     }
                     {/* Message Reply Cards End */}
+
 
 
                     {/* Message content */}
@@ -147,7 +166,21 @@ function MessageCard({
                 </div>
                 {/* Message Body End */}
 
+
             </div>
+            {/* Outer container message end */}
+
+
+
+            {
+                //  Action forward if message exist on forward array and msg from not equal xurrent user 
+                forward.length >= 1 && data.info.from === user.username && (
+                    <Cheked value={getExistForward} />
+                )
+                //  Action forward if message exist on forward array 
+            }
+
+
         </div>
     )
 }

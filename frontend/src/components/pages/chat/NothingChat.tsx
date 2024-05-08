@@ -6,9 +6,10 @@ function NothingChat() {
         width: "100%",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        background: "var(--bg-primary)"
       }}>
-        <span>Tidak ada chat</span>
+        <span className="text-white">Tidak ada chat</span>
       </div>
   )
 }

@@ -1,15 +1,15 @@
-import { useChat } from "@contexts/chat/ChatContext"
-import { colors } from "../../../../../constants/color"
-import Icon from "../../../../../constants/icons";
+import { colors } from "../../../../../../constants/color"
+import Icon from "../../../../../../constants/icons";
 import { useState } from "react";
+import { useMessage } from "@contexts/chat/MessageContext";
 
-function MessageSeacrh() {
+function MessageSearchContent() {
 
-    const { tgl: { fn: { setTglModal } } } = useChat();
     const [seacrh, setSearch] = useState({
         text: "",
         status: false
     });
+    const {router:{ fn:{handleMessageRouter}}} = useMessage()
 
     return (
         <div
@@ -25,7 +25,7 @@ function MessageSeacrh() {
                         style={{
                             cursor: "pointer"
                         }}
-                        onClick={() => setTglModal(pv => ["user_info", "search"].includes(pv) ? "idle" : "user_info")}
+                        onClick={() => handleMessageRouter("back")}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width={30} viewBox="0 0 24 24" id="times">
                             <path fill={colors.ICON_COLOR}
@@ -75,4 +75,4 @@ function MessageSeacrh() {
     )
 }
 
-export default MessageSeacrh
+export default MessageSearchContent

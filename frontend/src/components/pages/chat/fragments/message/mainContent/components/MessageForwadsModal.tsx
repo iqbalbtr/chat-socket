@@ -1,5 +1,5 @@
 import React from "react";
-import ContactCard from "../cards/ContactCard";
+import ContactCard from "../../../cards/ContactCard";
 import { useMessage } from "@contexts/chat/MessageContext";
 import { useContact } from "@contexts/chat/ContactContext";
 
@@ -22,12 +22,12 @@ function MessageForwadsModal() {
   function handleSend() {
     if (!forward) return
     for (const fwd of list) {
-      sendMessage({
-        input: forward.msg,
-        to: fwd,
-        type: "private",
-        fwd: forward.info.from
-      }, (status) => status);
+      // sendMessage({
+      //   input: forward.msg,
+      //   to: fwd,
+      //   type: "private",
+      //   fwd: forward.info.from
+      // }, (status) => status);
     }
   }
 

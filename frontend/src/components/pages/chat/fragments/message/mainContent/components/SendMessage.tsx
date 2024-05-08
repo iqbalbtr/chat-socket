@@ -1,11 +1,9 @@
 import React from 'react'
-import style from "../../styles/chat.module.css"
 import { useChat } from '@contexts/chat/ChatContext';
 import { useMessage } from '@contexts/chat/MessageContext';
-import MessagePullCard from '../cards/MessagePullCard';
+import MessagePullCard from '../../../cards/MessagePullCard';
 import ClipMenu from './ClipMenu';
-import Modal from '@components/core/Modal';
-import { colors } from '../../../../../constants/color';
+import { colors } from '../../../../../../../constants/color';
 import ModalTransparent from '@components/core/ModalTransparent';
 
 

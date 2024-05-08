@@ -12,7 +12,7 @@ type ContextType = {
         byRead: boolean
     };
     tgl: {
-        tglContent: ComponentContactType,
+        tglContent: ComponentContactType[],
         tglMenu: boolean
         fn: {
             setTglMenu: Dispatch<SetStateAction<boolean>>;
@@ -39,7 +39,7 @@ const Context = React.createContext<ContextType>({
         byRead: false
     },
     tgl: {
-        tglContent: "idle",
+        tglContent: ["idle"],
         tglMenu: false,
         fn: {
             setTglMenu: () => { },
@@ -62,11 +62,14 @@ export function useContact() {
     return React.useContext(Context);
 }
 
-export const componntContact = ["status", "group", "profile", "settings", "new_message"];
-export type ComponntContactActive = "status" | "group" | "profile" | "settings" | "new_message"
-export type ComponentContactType = "idle" | "status" | "group" | "profile" | "settings" | "new_message";
+export const componntContact = ["status", "group", "profile", "settings", "new_message" ,"new_contact", "archive"];
+export type ComponntContactActive = "status" | "group" | "profile" | "settings" | "new_message" | "new_contact" | "archivr"
+export type ComponentContactType = "idle" | "status" | "group" | "profile" | "settings" | "new_message" | "new_contact" | "archive" | "back";
 
 function ContactContext({ children }: { children: React.ReactNode }) {
+
+    const { user } = useSession();
+    const { socket } = useSocket();
 
     const [list, setList] = React.useState<ContactType[]>([]);
     const [listNew, setListNew] = React.useState<ContactType[]>([]);
@@ -76,12 +79,13 @@ function ContactContext({ children }: { children: React.ReactNode }) {
         byRead: false
     });
     const [status, setStatus] = React.useState<Loading>("idle");
-    const [tglContent, setTglContent] = useState<ComponentContactType>("idle")
-    const [tglMenu, setTglMenu] = useState<boolean>(false)
-    const { user } = useSession();
     const [error, setError] = React.useState("");
+
+
     const { current, fn: { handleCurrent } } = useChat();
-    const { socket } = useSocket();
+
+    const [tglContent, setTglContent] = useState<ComponentContactType[]>(["idle"])
+    const [tglMenu, setTglMenu] = useState<boolean>(false);    
 
     const toggleBYRead = useCallback(() => {
         setSearch(pv => ({
@@ -361,7 +365,13 @@ function ContactContext({ children }: { children: React.ReactNode }) {
     }, [list, listNew, current.username]);
 
     const handleTglContent = React.useCallback((name: ComponentContactType) => {
-        setTglContent(pv => ["status", "group", "profile", "settings"].includes(pv) ? "idle" : name);
+        // setTglContent(pv => ["status", "group", "profile", "settings"].includes(pv) ? "idle" : name);
+        setTglContent(pv =>
+            name === "back" ?
+                pv.slice(0, -1) :
+                [...pv, name]
+        );
+
         if (tglMenu) {
             setTglMenu(false)
         }

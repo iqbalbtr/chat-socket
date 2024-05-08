@@ -1,14 +1,22 @@
 // import React from 'react'
-import ContactMessageContainer from './fragments/contact/mainContent/components/ContactMessageContainer';
+import { useMessage, MessageRouterType } from '@contexts/chat/MessageContext';
 import NothingChat from './NothingChat';
-import ChatListMessage from './fragments/message/ChatListMessage';
+import ChatListMessage from './fragments/message/mainContent/MessageMainContent';
 import { useChat } from '@contexts/chat/ChatContext';
 import SwitchLayout from '@components/layouts/SwitchLayout';
-import MessageSeacrh from './fragments/message/MessageSeacrh';
+import MessageProfileContent from './fragments/message/profileContent/MessageProfileContent';
+import MessageSearchContent from './fragments/message/searchContent/MessageSeacrhContent';
+
+
 
 function ChatContainer() {
 
-  const { chatType, tgl: { tglModal } } = useChat();
+  const { chatType } = useChat();
+  const {
+    router:{
+      current
+    }
+  } = useMessage();
 
   return (
     <div
@@ -22,16 +30,16 @@ function ChatContainer() {
           <ChatListMessage /> :
           <NothingChat />
       }
-      <SwitchLayout
-        name={tglModal}
+      <SwitchLayout<MessageRouterType>
+        name={current}
         data={[
           {
             name: "user_info",
-            children: <ContactMessageContainer />
+            children: <MessageProfileContent />
           },
           {
             name: "search",
-            children: <MessageSeacrh />
+            children: <MessageSearchContent />
           }
         ]}
       />

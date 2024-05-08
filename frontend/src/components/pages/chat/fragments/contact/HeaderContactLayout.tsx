@@ -6,14 +6,12 @@ function HeaderContactLayout({ label, back, children }: { label: string, back?: 
 
     const { tgl: { fn: { setTglContent } } } = useContact()
     return (
-        <nav className='px-6 pt-16 bg-hover-color pb-5'>
+        <nav className='px-6 pt-12 bg-hover-color pb-5'>
             <div className='flex justify-between'>
-
-
 
                 {/* Action navigation start */}
                 <div className='flex gap-6'>
-                    <button onClick={back ? () => back() : () => setTglContent("idle")}>
+                    <button onClick={back ? () => back() : () => setTglContent("back")}>
                         {Icon.arrow_left({
                             color: "#fff",
                             size: 25

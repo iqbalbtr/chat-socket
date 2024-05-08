@@ -40,18 +40,16 @@ export type localMsgType = {
 
 type ContextProps = {
     current: Partial<ContactType>;
-    chatType: "group" | "private" | "idle";
+    chatType: ChatType;
     fn: {
         handleCurrent: (curr: ContactType, type: "private" | "group") => void;
         removeCurrent: () => void;
-    },
-    tgl: {
-        tglModal: "search" | "user_info" | "idle",
-        fn: {
-            setTglModal: React.Dispatch<React.SetStateAction<"search" | "user_info" | "idle">>
-        }
     }
 }
+
+export type ChatType = "group" | "private" | "idle"
+export type ChatRouterType = "search" | "user_info" | "idle"
+export type ChatRouterActive = ["search","user_info"]
 
 const Context = React.createContext<ContextProps>({
     current: {},
@@ -59,12 +57,6 @@ const Context = React.createContext<ContextProps>({
     fn: {
         handleCurrent: () => { },
         removeCurrent: () => { }
-    },
-    tgl: {
-        tglModal: "idle",
-        fn: {
-            setTglModal: () => { }
-        }
     }
 })
 
@@ -80,10 +72,8 @@ function ChatContext({
 }) {
 
     const [current, setCurrent] = React.useState<Partial<ContactType>>({});
-    const [statusChat, setStatusChat] = React.useState<"idle" | "group" | "private">("idle");
-    const [tglContact, setTglModal] = React.useState<"search" | "user_info" | "idle">("idle");
+    const [statusChat, setStatusChat] = React.useState<ChatType>("idle");
     
-
 
     // handle current user chat
     const handleCurrent = React.useCallback((curr: ContactType, type: "private" | "group") => {
@@ -96,6 +86,8 @@ function ChatContext({
         setStatusChat("idle")
     }, [current, statusChat]);
 
+    
+
     return (
         <Context.Provider value={{
             chatType: statusChat,
@@ -103,12 +95,6 @@ function ChatContext({
             fn: {
                 handleCurrent: handleCurrent,
                 removeCurrent: removeCurrent
-            },
-            tgl: {
-                tglModal: tglContact,
-                fn: {
-                    setTglModal: setTglModal
-                }
             }
         }}>
             <ContactContext>

@@ -1,7 +1,5 @@
 import React from 'react'
 import style from "../../styles/contact.module.css"
-import Modal from '@components/core/Modal';
-import ContactAddModal from './mainContent/components/ContactAddModal';
 import { ContactType, useChat } from '@contexts/chat/ChatContext';
 import { useContact } from '@contexts/chat/ContactContext';
 
@@ -65,15 +63,6 @@ function ContactModal({ setTgl }: { setTgl: React.Dispatch<React.SetStateAction<
                     Bagikan
                 </button>
             </div>
-            <Modal
-                open={tglAdd}
-                setOpen={setTglAdd}
-                styles={{
-                    left: "0",
-                }}
-            >
-                <ContactAddModal username={contact.username} />
-            </Modal>
         </div>
     )
 }

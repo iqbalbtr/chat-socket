@@ -1,11 +1,11 @@
 import React, { useRef } from 'react'
-import ChatHeader from './ChatHeader'
-import SendMessage from './SendMessage'
-import MessageCard from '../cards/MessageCard';
+import ChatHeader from './components/MessageHeader'
+import SendMessage from './components/SendMessage'
+import MessageCard from '../../cards/MessageCard';
 import { useMessage } from '@contexts/chat/MessageContext';
 import { useChat } from '@contexts/chat/ChatContext';
 
-function ChatListMessage() {
+function MessageMainContent() {
 
     const { list } = useMessage();
     const { current } = useChat();
@@ -58,4 +58,4 @@ function ChatListMessage() {
     )
 }
 
-export default ChatListMessage
+export default MessageMainContent

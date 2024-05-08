@@ -8,7 +8,7 @@
     display: flex;
     gap: 12px;
     align-items: start;
-    background-color: var(--secondary-color);
+    background-color: var(--message);
     transition: all .4s ease-in-out;
     height: 300px;
 }

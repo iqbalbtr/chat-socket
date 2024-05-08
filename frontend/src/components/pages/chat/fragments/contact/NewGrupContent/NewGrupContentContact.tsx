@@ -47,9 +47,11 @@ function NewGrupContentContact() {
                                 }
                             </div>
 
+
                             <div className='px-8 pb-6'>
                                 <input type="text" className='w-full bg-transparent border-b-2 border-y-hover-color px-1 py-1  outline-none' placeholder='Seacrch name' />
                             </div>
+
 
                             <div className={`flex flex-col gap-4 px-8 ${member.length >= 9 ? "max-h-[30vh]" : "max-h-[55vh]"} overflow-y-scroll`}>
                                 {
@@ -64,6 +66,7 @@ function NewGrupContentContact() {
                                 }
                             </div>
 
+                            
                         </div>
 
                         {

@@ -5,8 +5,8 @@ type DataSwitch = {
     children: ReactNode
 }
 
-function SwitchLayout({ data, name }: { data: DataSwitch[], name: string }): ReactNode | null {
-    return data.find(child => child.name === name)?.children
+function SwitchLayout<T>({ data, name }: { data: DataSwitch[], name: T[] }): ReactNode | null {    
+    return data.find(child => child.name === name[name.length - 1])?.children
 }
 
 export default SwitchLayout
