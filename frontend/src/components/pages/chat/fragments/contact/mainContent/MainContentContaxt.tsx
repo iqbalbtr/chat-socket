@@ -4,10 +4,12 @@ import SearchContact from './components/SearchContact'
 import ArchiveContact from './components/ArchiveContact'
 import { useContact } from '@contexts/chat/ContactContext';
 import ContactCard from '../../cards/ContactCard';
+import { useSearchContact } from '@contexts/chat/contact/SearchContactContext';
 
 function MainContentContaxt() {
 
-    const { contact, seacrh } = useContact();
+    const { contact } = useContact();
+    const { search } = useSearchContact();
 
     return (
         <div>
@@ -21,8 +23,8 @@ function MainContentContaxt() {
                 <ArchiveContact />
                 <div className="flex flex-col h-[77vh] px-2 overflow-y-scroll">
                     {
-                        seacrh.status ?
-                            seacrh.data.map((contact, i) => <ContactCard key={i} data={contact} />) :
+                        search.status ?
+                            search.data.map((contact, i) => <ContactCard key={i} data={contact} />) :
                             contact.map((contact, i) => <ContactCard key={i} data={contact} />)
                     }
                 </div>

@@ -2,27 +2,28 @@ import { useMessage } from '@contexts/chat/MessageContext'
 import { useChat } from '@contexts/chat/ChatContext';
 import LockIcon from "@components/LockIcon";
 import { useEffect } from 'react';
+import { useRouterMessage } from '@contexts/chat/message/RouterMessageContext';
 
 function MessageListMenu({ back }: { back: () => void }) {
 
-  const { fn: { removeAllMessage }, router: { current, fn: { handleMessageRouter } } } = useMessage();
+  const { fn: { removeAllMessage }} = useMessage();
+  const { fn: { handleRouterMessage }} = useRouterMessage();
   const chat = useChat();
 
-  useEffect(() => {
-    if(current.length >= 2){
-      back()
-    }
-  }, [current])
+  function hanldeButton(fn: () => void){
+    fn()
+    back()
+  }
 
   return (
     <div
-      className="w-[240px] bg-hover-color p-6 gap-4 flex flex-col items-start z-10"
+      className="w-[240px] absolute right-0 bg-hover-color p-6 gap-4 flex flex-col items-start z-10"
     >
-      <button onClick={() => handleMessageRouter("user_info")}>
+      <button onClick={() => hanldeButton(() => handleRouterMessage("user_info"))}>
         Info kontak
       </button>
       <button
-        onClick={() => removeAllMessage(chat.current.username!, true)}
+        onClick={() => hanldeButton(() => removeAllMessage(chat.current.username!, true))}
       >
         Hapus chat
       </button>
@@ -30,7 +31,7 @@ function MessageListMenu({ back }: { back: () => void }) {
         Arsipkan
         <LockIcon />
       </button>
-      <button onClick={() => removeAllMessage(chat.current.username!, false)}>
+      <button onClick={() => hanldeButton(() => removeAllMessage(chat.current.username!, false))}>
         Bersihkan
       </button>
     </div>

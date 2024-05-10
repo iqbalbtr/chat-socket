@@ -2,7 +2,6 @@
 import SwitchLayout from "@components/layouts/SwitchLayout";
 import _contact_dummy from "../../assets/json/contact.json"
 import MainContentContaxt from './fragments/contact/mainContent/MainContentContaxt';
-import { ComponentContactType, useContact } from "@contexts/chat/ContactContext";
 import ProfileContentContact from "./fragments/contact/profileContent/ProfileContentContact";
 import StatusContentContact from "./fragments/contact/statusContent/StatusContentContact";
 import NewGrupContentContact from "./fragments/contact/NewGrupContent/NewGrupContentContact";
@@ -10,11 +9,12 @@ import SettingContentContact from "./fragments/contact/settingContent/SettingCon
 import NewMessage from "./fragments/contact/newMessage/NewMessage";
 import NewContactContent from "./fragments/contact/newContact/NewContactContent";
 import ArchiveContactConten from "./fragments/contact/archive/ArchiveContactConten";
+import { RouterContactType, useRouterContact } from "@contexts/chat/contact/RouterContactContext";
 
 
 function ContactContainer() {
 
-    const { tgl: { tglContent } } = useContact()
+    const { content } = useRouterContact()
 
 
     return (
@@ -24,8 +24,8 @@ function ContactContainer() {
             <MainContentContaxt />
             {/* Contact Section main contnt */}
 
-            <SwitchLayout<ComponentContactType>
-                name={tglContent}
+            <SwitchLayout<RouterContactType>
+                name={content}
                 data={[
                     {
                         name: "profile",

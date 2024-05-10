@@ -1,20 +1,19 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useSession } from '@providers/AuthProvider'
-import { useContact } from '@contexts/chat/ContactContext';
+import { useRouterContact } from '@contexts/chat/contact/RouterContactContext';
 
 
 
 function ContactMenuList({ handleTgl }: { handleTgl: () => void; }) {
 
   const { status, logout } = useSession();
-  const { tgl: { tglContent, fn: { setTglContent } } } = useContact();
-
+  const { content, fn: { handleContent } } = useRouterContact();
 
   useEffect(() => {
-    if (tglContent.length === 2) {
+    if (content.length === 2) {
       handleTgl()
     }
-  }, [tglContent])
+  }, [content])
 
   return (
     <div
@@ -24,14 +23,14 @@ function ContactMenuList({ handleTgl }: { handleTgl: () => void; }) {
       <div className='flex flex-col gap-4 items-start p-5 pb-3'>
         <button
           onClick={() => {
-            setTglContent("profile")
+            handleContent("profile")
           }}
         >
           Lihat Profile
         </button>
         <button
           onClick={() => {
-            setTglContent("new_contact")
+            handleContent("new_contact")
           }}
         >
           Tambah Kontak
@@ -39,14 +38,14 @@ function ContactMenuList({ handleTgl }: { handleTgl: () => void; }) {
 
         <button
           onClick={() => {
-            setTglContent("group")
+            handleContent("group")
           }}
         >
           Buat Grup
         </button>
         <button
           onClick={() => {
-            setTglContent("settings")
+            handleContent("settings")
           }}
         >
           Setelan

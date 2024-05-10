@@ -130,6 +130,37 @@ const Icon = {
             >
             </path>
         </svg>
+    ),
+    corner_right: (payload: IconType) => (
+        <svg
+            width={payload.size}
+            height={payload.size}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            id="corner-up-right-alt"
+            className={payload.classname}
+        >
+            <path
+                fill={payload.color}
+                d="M19.92,10.12a1,1,0,0,0-.21-.33l-3-3a1,1,0,1,0-1.42,1.42l1.3,1.29H7a3,3,0,0,0-3,3v4a1,1,0,0,0,2,0v-4a1,1,0,0,1,1-1h9.59l-1.3,1.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l3-3a1,1,0,0,0,.21-.33A1,1,0,0,0,19.92,10.12Z"
+            >
+            </path>
+        </svg>
+    ),
+    trash: (payload: IconType) => (
+        <svg
+            width={payload.size}
+            height={payload.size}
+            className={payload.classname}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            id="trash">
+            <path
+                fill={payload.color}
+                d="M20,6H16V5a3,3,0,0,0-3-3H11A3,3,0,0,0,8,5V6H4A1,1,0,0,0,4,8H5V19a3,3,0,0,0,3,3h8a3,3,0,0,0,3-3V8h1a1,1,0,0,0,0-2ZM10,5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1V6H10Zm7,14a1,1,0,0,1-1,1H8a1,1,0,0,1-1-1V8H17Z"
+            >
+            </path>
+        </svg>
     )
 }
 

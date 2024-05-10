@@ -30,7 +30,7 @@ function StatusContentContact() {
 
                         <div className='py-6 px-4 flex flex-col text-white'>
                             <ModalTransparent
-                                button={(tgl) => (
+                                button={() => (
                                     <div className='flex gap-3 pb-10'>
                                         <span className='w-[45px] aspect-square rounded-full bg-gray-400 flex justify-center items-center'>
                                             {user.username?.charAt(0).toUpperCase()}
@@ -42,7 +42,7 @@ function StatusContentContact() {
                                     </div>
                                 )}
                             >
-                                {(handleTgl, tgl) => (
+                                {(handleTgl) => (
                                     <div className='absolute flex flex-col -bottom-full w-[180px] p-4 items-start gap-4 bg-bg-primary'>
                                         <button
                                             onClick={() => {

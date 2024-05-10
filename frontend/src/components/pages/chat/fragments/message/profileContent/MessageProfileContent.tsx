@@ -4,14 +4,15 @@ import { useContact } from '@contexts/chat/ContactContext';
 import { colors } from '../../../../../../constants/color';
 import { useMessage } from '@contexts/chat/MessageContext';
 import EditProfileMessage from './chiild/EditProfileMessage';
+import { useRouterMessage } from '@contexts/chat/message/RouterMessageContext';
 
 
 function MessageProfileContent() {
 
     const { current, fn: { removeCurrent } } = useChat();
-    const { router: { fn: { handleMessageRouter } } } = useMessage();
+    const { fn: { handleModalMessage, handleRouterMessage } } = useRouterMessage();
     const [tglEdit, setTglEdit] = React.useState<boolean>(false);
-    const { contact, fn: { removeContact, updateContact } } = useContact();
+    const { contact, fn: { removeContact } } = useContact();
 
     function getLastActive() {
         const find = contact.find(con => con.username === current.username);
@@ -44,7 +45,7 @@ function MessageProfileContent() {
                                 style={{
                                     cursor: "pointer"
                                 }}
-                                onClick={() => handleMessageRouter("back")}
+                                onClick={() => handleRouterMessage("back")}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width={30} viewBox="0 0 24 24" id="times">
                                     <path fill={colors.ICON_COLOR}
@@ -96,13 +97,15 @@ function MessageProfileContent() {
                                             onClick={() => removeContact(current.username!, (err) => {
                                                 if (!err) {
                                                     removeCurrent();
-                                                    handleMessageRouter("back")
+                                                    handleRouterMessage("back")
                                                 }
                                             })}
                                         >
                                             Hapus
                                         </button>
-                                        <button>
+                                        <button
+                                            onClick={() => handleModalMessage("share")}
+                                        >
                                             Bagikan
                                         </button>
                                         <button>

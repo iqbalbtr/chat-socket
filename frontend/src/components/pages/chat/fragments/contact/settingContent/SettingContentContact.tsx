@@ -1,4 +1,3 @@
-import React from 'react'
 import HeaderContactLayout from '../HeaderContactLayout'
 
 function SettingContentContact() {

@@ -7,7 +7,7 @@ import { useChat } from '@contexts/chat/ChatContext';
 
 function MessageMainContent() {
 
-    const { list } = useMessage();
+    const { message  } = useMessage();
     const { current } = useChat();
     const container = useRef<HTMLDivElement | null>(null);
 
@@ -15,7 +15,7 @@ function MessageMainContent() {
         if (container.current) {
             container.current.scrollTop = container.current.scrollHeight - container.current.clientHeight
         }
-    }, [list, current.username])
+    }, [message, current.username])
 
     return (
         <div
@@ -24,6 +24,7 @@ function MessageMainContent() {
             <ChatHeader />
             <div
                 ref={container}
+                id='message-container'
                 style={{
                     maxHeight: "83.5vh",
                     height: '83.4vh',
@@ -48,7 +49,7 @@ function MessageMainContent() {
                     )
                 }
                 {
-                    list.map((data, id) => (
+                    message.map((data, id) => (
                         <MessageCard key={id} data={data} />
                     ))
                 }

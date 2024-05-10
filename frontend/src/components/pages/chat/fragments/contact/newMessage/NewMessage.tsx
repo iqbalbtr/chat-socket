@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import HeaderContactLayout from '../HeaderContactLayout';
 import { useContact } from '@contexts/chat/ContactContext';
 import ContactGrupCard from '../NewGrupContent/components/ContactGrupCard';
-import NewGrupContentContact from '../NewGrupContent/NewGrupContentContact';
+import { useRouterContact } from '@contexts/chat/contact/RouterContactContext';
 
 function NewMessage() {
 
-    const { contact, tgl: { fn: { setTglContent } } } = useContact()
-    const [tglGroup, setTglGroup] = useState(false);
+    const { contact } = useContact()
+    const { fn: { handleContent } } = useRouterContact();
 
     return (
         <div className='fixed min-h-screen w-[31%] left-0 top-0 bg-bg-secondary'>
@@ -26,7 +26,7 @@ function NewMessage() {
                     <div className='py-6 px-8'>
                         <div>
                             <button
-                                onClick={() => setTglContent("group")}
+                                onClick={() => handleContent("group")}
                             >New Group</button>
                         </div>
                     </div>

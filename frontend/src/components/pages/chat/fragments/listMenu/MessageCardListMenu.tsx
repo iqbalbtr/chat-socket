@@ -2,10 +2,14 @@ import React from 'react'
 // import MessageForwadsModal from '../message/mainContent/components/MessageForwadsModal';
 import { useMessage } from '@contexts/chat/MessageContext';
 import { MsgType } from '@contexts/chat/ChatContext';
+import { usePullMessage } from '@contexts/chat/message/PullMessage.Context';
+import { useSelectMessage } from '@contexts/chat/message/SelectMessageContext';
 
 function MessageCardListMenu({ msg, setTgl }: { msg: MsgType, setTgl: React.Dispatch<React.SetStateAction<boolean>> }) {
 
-  const { fn: { pullMessage, removeMessage, handleForward } } = useMessage()
+  const { fn: { handlePull } } = usePullMessage()
+  const { fn: { removeMessage } } = useMessage()
+  const { fn: { handleSelect } } = useSelectMessage()
 
   return (
     <div
@@ -13,7 +17,7 @@ function MessageCardListMenu({ msg, setTgl }: { msg: MsgType, setTgl: React.Disp
     >
       <button
         onClick={() => {
-          handleForward(msg)
+          handleSelect(msg)
           setTgl(pv => !pv)
         }}
       >
@@ -21,7 +25,7 @@ function MessageCardListMenu({ msg, setTgl }: { msg: MsgType, setTgl: React.Disp
       </button>
 
       <button onClick={() => {
-        pullMessage(msg.id)
+        handlePull(msg)
         setTgl(pv => !pv)
       }}>
         Balas

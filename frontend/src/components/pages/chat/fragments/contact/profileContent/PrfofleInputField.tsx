@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { colors } from "../../../../../../constants/color";
 import Icon from "../../../../../../constants/icons";
 
@@ -23,7 +23,6 @@ function PrfofleInputField({ action, value }: { action: () => Promise<void>, val
                 type="text"
                 onFocus={() => setFocus(true)}
                 value={string}
-                defaultValue={value}
                 className={`bg-transparent w-full outline-none text-base text-white focus:border-b-2 focus:border-green-primary ${focus && "border-b-2 "}`}
                 onChange={(e) => setString(e.target.value)}
             />

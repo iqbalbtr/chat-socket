@@ -1,33 +1,33 @@
 import { useSession } from '@providers/AuthProvider';
 import Profile from '../../../cards/Profile';
-import { useContact } from '@contexts/chat/ContactContext';
 import ContactMenuList from '../../../listMenu/ContactListMenu';
 import Icon from '../../../../../../../constants/icons';
 import { colors } from '../../../../../../../constants/color';
 import ModalTransparent from '@components/core/ModalTransparent';
+import { useRouterContact } from '@contexts/chat/contact/RouterContactContext';
 
 function HeaderContact() {
 
     const { user } = useSession();
-    const { tgl: { fn: { setTglMenu, setTglContent } } } = useContact();
+    const { fn: { handleContent, handleToggle } } = useRouterContact();
 
     return (
         <div className={`w-full flex justify-between py-2 px-4 bg-bg-primary relative`}>
-            <div>
+            <button onClick={() => handleContent("profile")}>
                 <Profile username={user.username || ""} width={40} />
-            </div>
+            </button>
             <div
                 className='relative flex gap-5 items-center'
-             >
+            >
                 <button
-                    onClick={() => setTglContent("status")}
+                    onClick={() => handleContent("status")}
                 >
                     {Icon.circle({
                         size: 25,
                         color: colors.ICON_COLOR
                     })}
                 </button>
-                <button onClick={() => setTglContent("new_message")}>
+                <button onClick={() => handleContent("new_message")}>
                     <svg xmlns="http://www.w3.org/2000/svg" width={25} viewBox="0 0 24 24" id="comment-alt-plus">
                         <path fill="#aebbc2"
                             d="M15,9H13V7a1,1,0,0,0-2,0V9H9a1,1,0,0,0,0,2h2v2a1,1,0,0,0,2,0V11h2a1,1,0,0,0,0-2Zm4-7H5A3,3,0,0,0,2,5V15a3,3,0,0,0,3,3H16.59l3.7,3.71A1,1,0,0,0,21,22a.84.84,0,0,0,.38-.08A1,1,0,0,0,22,21V5A3,3,0,0,0,19,2Zm1,16.59-2.29-2.3A1,1,0,0,0,17,16H5a1,1,0,0,1-1-1V5A1,1,0,0,1,5,4H19a1,1,0,0,1,1,1Z"></path>
@@ -43,7 +43,7 @@ function HeaderContact() {
                     button={() => (
                         <div
                             style={{ position: "relative", cursor: "pointer" }}
-                            onClick={() => setTglMenu(pv => !pv)}
+                            onClick={() => handleToggle()}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width={25} viewBox="0 0 24 24" id="ellipsis-v">
                                 <path fill="#aebbc2"

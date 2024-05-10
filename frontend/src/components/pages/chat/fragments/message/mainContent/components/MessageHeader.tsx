@@ -5,12 +5,13 @@ import { colors } from '../../../../../../../constants/color';
 import { useMessage } from '@contexts/chat/MessageContext';
 import MessageListMenu from '../../../listMenu/MessageListMenu';
 import ModalTransparent from '@components/core/ModalTransparent';
+import { useRouterMessage } from '@contexts/chat/message/RouterMessageContext';
 
 function MessageHeader() {
 
     const { contact } = useContact();
     const chat = useChat();
-    const { router: { current, fn: { handleMessageRouter } } } = useMessage()
+    const { fn: { handleRouterMessage } } = useRouterMessage()
 
     function getLastActive() {
         const find = contact.find(con => con.username === chat.current.username);
@@ -30,7 +31,7 @@ function MessageHeader() {
 
     return (
         <div className={`w-full flex justify-between py-2.5 px-5 bg-bg-primary text-white items-center relative`}>
-            <div className="flex gap-2 items-center" onClick={() => handleMessageRouter("user_info")}>
+            <div className="flex gap-2 items-center" onClick={() => handleRouterMessage("user_info")}>
                 <span className='w-[35px] flex justify-center items-center aspect-square rounded-full bg-gray-400'>{chat.current.name?.charAt(0).toUpperCase()}</span>
                 <div>
                     <h3 className='font-semibold'>{chat.current.name}</h3>
@@ -38,7 +39,7 @@ function MessageHeader() {
                 </div>
             </div>
             <div className='flex justify-center items-center gap-4'>
-                <button onClick={() => handleMessageRouter("search")}>
+                <button onClick={() => handleRouterMessage("search")}>
                     <svg
                         width={24}
                         height={24}
@@ -67,7 +68,7 @@ function MessageHeader() {
                         </div>
                     )}
                 >
-                    {(handleTgl, tgl) => (
+                    {(handleTgl) => (
                         <MessageListMenu back={handleTgl} />
                     )}
                 </ModalTransparent>

@@ -2,12 +2,13 @@ import React from "react";
 import ContactCard from "../../../cards/ContactCard";
 import { useMessage } from "@contexts/chat/MessageContext";
 import { useContact } from "@contexts/chat/ContactContext";
+import { useSelectMessage } from "@contexts/chat/message/SelectMessageContext";
 
 function MessageForwadsModal() {
 
   const [list, setList] = React.useState<string[]>([]);
   const { contact } = useContact();
-  const { forward, fn: { sendMessage } } = useMessage();
+  const { select } = useSelectMessage();
 
   function handleCkebox(e: React.ChangeEvent<HTMLInputElement>) {
     const find = list.find(li => li === e.target.value)
@@ -20,7 +21,7 @@ function MessageForwadsModal() {
   }
 
   function handleSend() {
-    if (!forward) return
+    if (!select) return
     for (const fwd of list) {
       // sendMessage({
       //   input: forward.msg,

@@ -1,17 +1,18 @@
 import { ReactNode } from 'react'
 import Icon from '../../../../../constants/icons';
-import { useContact } from '@contexts/chat/ContactContext';
+import { useRouterContact } from '@contexts/chat/contact/RouterContactContext';
 
 function HeaderContactLayout({ label, back, children }: { label: string, back?: () => void; children?: ReactNode }) {
 
-    const { tgl: { fn: { setTglContent } } } = useContact()
+    const { fn: { handleContent } } = useRouterContact();
+
     return (
-        <nav className='px-6 pt-12 bg-hover-color pb-5'>
+        <nav className='px-6 pt-12 bg-bg-primary pb-5'>
             <div className='flex justify-between'>
 
                 {/* Action navigation start */}
                 <div className='flex gap-6'>
-                    <button onClick={back ? () => back() : () => setTglContent("back")}>
+                    <button onClick={back ? () => back() : () => handleContent("back")}>
                         {Icon.arrow_left({
                             color: "#fff",
                             size: 25

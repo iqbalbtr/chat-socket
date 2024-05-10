@@ -1,24 +1,13 @@
-import React, { Dispatch, SetStateAction, useCallback, useState } from "react"
+import React from "react"
 import { Loading } from "@hooks/useFetch";
 import { useSession } from "@providers/AuthProvider";
 import { ContactType, localMsgType, useChat } from "./ChatContext";
 import { useSocket } from "@providers/SocketProvider";
+import RouterContactContext from "./contact/RouterContactContext";
+import SearchContactContext from "./contact/SearchContactContext";
 
 type ContextType = {
     contact: ContactType[];
-    seacrh: {
-        status: boolean,
-        data: ContactType[],
-        byRead: boolean
-    };
-    tgl: {
-        tglContent: ComponentContactType[],
-        tglMenu: boolean
-        fn: {
-            setTglMenu: Dispatch<SetStateAction<boolean>>;
-            setTglContent: (name: ComponentContactType) => void
-        }
-    }
     error: string;
     fn: {
         addContact: (payload: { username: string, name: string }, callback: (err: string, result?: ContactType) => void) => Promise<void>,
@@ -26,26 +15,11 @@ type ContextType = {
         updateContact: (payload: { id: number, name: string }, callback: (err: string) => void) => Promise<void>;
         storeLastMsg: () => { store: (user: string, msg: string, read: boolean) => void, read: (user: string) => void };
         addContactNew: (username: string) => void;
-        seacrhContact: (name: string) => void;
-        toggleByRead: () => void;
     }
 };
 
 const Context = React.createContext<ContextType>({
     contact: [],
-    seacrh: {
-        status: false,
-        data: [],
-        byRead: false
-    },
-    tgl: {
-        tglContent: ["idle"],
-        tglMenu: false,
-        fn: {
-            setTglMenu: () => { },
-            setTglContent: () => { }
-        }
-    },
     error: "",
     fn: {
         addContact: async () => { },
@@ -53,8 +27,6 @@ const Context = React.createContext<ContextType>({
         removeContact: async () => { },
         updateContact: async () => { },
         storeLastMsg: () => ({ store: () => { }, read: () => { } }),
-        seacrhContact: () => { },
-        toggleByRead: () => { }
     }
 });
 
@@ -62,37 +34,19 @@ export function useContact() {
     return React.useContext(Context);
 }
 
-export const componntContact = ["status", "group", "profile", "settings", "new_message" ,"new_contact", "archive"];
-export type ComponntContactActive = "status" | "group" | "profile" | "settings" | "new_message" | "new_contact" | "archivr"
-export type ComponentContactType = "idle" | "status" | "group" | "profile" | "settings" | "new_message" | "new_contact" | "archive" | "back";
 
 function ContactContext({ children }: { children: React.ReactNode }) {
 
     const { user } = useSession();
     const { socket } = useSocket();
 
-    const [list, setList] = React.useState<ContactType[]>([]);
+    const [list, setList] = React.useState<ContactType[]>([]); 
     const [listNew, setListNew] = React.useState<ContactType[]>([]);
-    const [search, setSearch] = React.useState<{ status: boolean, byRead: boolean, data: ContactType[] }>({
-        status: false,
-        data: [],
-        byRead: false
-    });
     const [status, setStatus] = React.useState<Loading>("idle");
     const [error, setError] = React.useState("");
 
 
     const { current, fn: { handleCurrent } } = useChat();
-
-    const [tglContent, setTglContent] = useState<ComponentContactType[]>(["idle"])
-    const [tglMenu, setTglMenu] = useState<boolean>(false);    
-
-    const toggleBYRead = useCallback(() => {
-        setSearch(pv => ({
-            ...pv,
-            byRead: !pv.byRead
-        }))
-    }, [search])
 
     const getContact = React.useCallback(async () => {
         setStatus("loading");
@@ -342,42 +296,6 @@ function ContactContext({ children }: { children: React.ReactNode }) {
         }
     }, [list, listNew, current.username]);
 
-    const searchContact = React.useCallback((name: string) => {
-
-        if (!name) return setSearch(pv => ({
-            ...pv,
-            status: false,
-            data: []
-        }))
-
-        setSearch(pv => ({
-            ...pv,
-            status: true,
-            data: list.filter(con => {
-                (
-                    con.name.includes(name.toLowerCase()) ||
-                    con.username.includes(name.toLowerCase()) &&
-                    con.lastMsg?.read === search.byRead
-                )
-            })
-        }))
-
-    }, [list, listNew, current.username]);
-
-    const handleTglContent = React.useCallback((name: ComponentContactType) => {
-        // setTglContent(pv => ["status", "group", "profile", "settings"].includes(pv) ? "idle" : name);
-        setTglContent(pv =>
-            name === "back" ?
-                pv.slice(0, -1) :
-                [...pv, name]
-        );
-
-        if (tglMenu) {
-            setTglMenu(false)
-        }
-
-    }, [tglContent, tglMenu]);
-
     React.useEffect(() => {
         getContact()
 
@@ -409,28 +327,21 @@ function ContactContext({ children }: { children: React.ReactNode }) {
     return (
         <Context.Provider value={{
             contact: list,
-            seacrh: search,
             error: error,
-            tgl: {
-                tglContent: tglContent,
-                tglMenu: tglMenu,
-                fn: {
-                    setTglContent: handleTglContent,
-                    setTglMenu: setTglMenu
-                }
-            },
             fn: {
                 addContact: addContact,
                 removeContact: removeContact,
                 updateContact: updateContact,
                 addContactNew: addContactNew,
                 storeLastMsg: storeLastMsg,
-                seacrhContact: searchContact,
-                toggleByRead: toggleBYRead
             }
         }}
         >
-            {children}
+            <RouterContactContext>
+                <SearchContactContext>
+                    {children}
+                </SearchContactContext>
+            </RouterContactContext>
         </Context.Provider>
     )
 }

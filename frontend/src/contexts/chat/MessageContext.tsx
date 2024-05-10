@@ -3,54 +3,38 @@ import { useSocket } from '@providers/SocketProvider';
 import React from 'react'
 import { MsgType, useChat } from './ChatContext';
 import { useContact } from './ContactContext';
+import RouterMessageContext from './message/RouterMessageContext';
+import SelectMessageContext from './message/SelectMessageContext';
+import PullMessageContext from './message/PullMessage.Context';
+import SearchContactContext from './contact/SearchContactContext';
 
 type LocalMessage = {
     username: string;
     data: MsgType[];
 }
 type ContextType = {
-    list: MsgType[],
-    pull: MsgType | null;
-    forward: MsgType[];
-    router: {
-        current: MessageRouterType[];
-        fn: {
-            handleMessageRouter: (name: MessageRouterType) => void
-        }
-    }
+    message: MsgType[],
     fn: {
         sendMessage: ({ input, to, type, fwd }: { input: string, to: string, type: "group" | "private", pull?: MsgType, fwd?: string }, callback: (status: boolean, msg?: MsgType) => void) => void;
-        pullMessage: (id: string) => void;
-        removePull: () => void;
         removeMessage: (id: string, username: string, callback: (err: string, result?: MsgType) => void) => void;
         removeAllMessage: (username: string, local: boolean) => void;
-        handleForward: (msg: MsgType) => void;
     }
 }
 
 const Context = React.createContext<ContextType>({
-    list: [],
-    pull: null,
-    forward: [],
-    router: {
-        current: ["idle"],
-        fn: {
-            handleMessageRouter: () => { }
-        }
-    },
+    message: [],
     fn: {
         sendMessage: () => { },
-        pullMessage: () => { },
-        removePull: () => { },
         removeMessage: () => { },
         removeAllMessage: () => { },
-        handleForward: () => { },
     }
 });
 
 export type MessageType = "group" | "private" | "idle"
 export type MessageRouterType = "search" | "user_info" | "back" | "idle"
 export type MessageRouterActive = ["search", "user_info"]
+export type ModalRouterMessageType = "forward" | "share" | "idle" | "back";
+export const ModalRouterMessageActive = ["forward", "share"];
 
 export function useMessage() {
     return React.useContext(Context)
@@ -58,10 +42,7 @@ export function useMessage() {
 
 function MessageContext({ children }: { children: React.ReactNode }) {
 
-    const [list, setList] = React.useState<MsgType[]>([]);
-    const [pull, setPull] = React.useState<MsgType | null>(null);
-    const [forward, setForwards] = React.useState<MsgType[]>([]);
-    const [routerMessage, setRouterMessage] = React.useState<MessageRouterType[]>(["idle"]);
+    const [message, setMessage] = React.useState<MsgType[]>([]);
     const { user: { username } } = useSession();
     const { current, fn: { removeCurrent } } = useChat();
     const { socket } = useSocket();
@@ -89,13 +70,13 @@ function MessageContext({ children }: { children: React.ReactNode }) {
 
         // if message is from the same receipent or not
         if (current.username === msg.info.from) {
-            setList(pv => [...pv, msg]);
+            setMessage(pv => [...pv, msg]);
             storeLastMsg().store(msg.info.from, msg.msg, true);
         } else {
             storeLastMsg().store(msg.info.from, msg.msg, false);
         }
 
-    }, [list, current.username])
+    }, [message, current.username])
 
     const sendMessage = React.useCallback(({
         input,
@@ -144,49 +125,39 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         // store to local
         window.localStorage.setItem(`_${current.username}`, JSON.stringify({
             username: current.username,
-            data: [...list, { ...payload, info: { ...payload.info, read: true } }]
+            data: [...message, { ...payload, info: { ...payload.info, read: true } }]
         } as LocalMessage));
 
         // message forward will reset current
         if (payload.fwd) {
             removeCurrent();
         } else {
-            setList([...list, payload]);
+            setMessage([...message, payload]);
         }
 
         // store last message read: true because sending is same from current user
         storeLastMsg().store(to, input, true);
 
         callback(true, payload);
-    }, [list, current]);
+    }, [message, current]);
 
-    const pullMessage = React.useCallback((id: string) => {
-        const find = list.find(msg => msg.id === id);
-        if (find) {
-            setPull(find);
-        }
-    }, [list]);
-
-    const removePull = React.useCallback(() => {
-        setPull(null)
-    }, [list]);
 
     const removeMessage = React.useCallback((id: string, username: string, callback: (err: string, result?: MsgType) => void) => {
-        const find = list.find(msg => msg.id === id);
+        const find = message.find(msg => msg.id === id);
         if (find) {
 
-            // update list message
-            const insert = list.filter(msg => msg.id !== id);
-            setList(insert);
+            // update message message
+            const insert = message.filter(msg => msg.id !== id);
+            setMessage(insert);
 
-            // store list message to local
+            // store message message to local
             window.localStorage.setItem(`_${username}`, JSON.stringify({
                 username: current.username,
                 data: insert
             }))
 
             // if last message is empty or not
-            if (list.length === 1) {
+            if (message.length === 1) {
                 storeLastMsg().store(current.username!, "", true);
             } else {
                 storeLastMsg().store(current.username!, insert[insert.length - 1].msg, true);
@@ -195,13 +166,13 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         } else {
             callback("Message is not found");
         }
-    }, [list]);
+    }, [message]);
 
     const removeAllMessage = React.useCallback((username: string, local: boolean) => {
 
         // deleting chat if same cuurent
         if (current.username === username) {
-            setList([]);
+            setMessage([]);
         }
 
         // remove data from local
@@ -211,35 +182,19 @@ function MessageContext({ children }: { children: React.ReactNode }) {
 
         // reset last msg
         storeLastMsg().store(current.username!, "", true);
-    }, [list, current]);
+    }, [message, current]);
 
-    const handleForward = React.useCallback((msg: MsgType) => {
-        setForwards(pv => 
-            pv.find(data => data.id === msg.id) ?
-            pv.filter(data => data.id !== msg.id) :
-            [...pv, msg]
-        );
-    }, [list, current, forward]);
-
-
-    const handleRouterMessage = React.useCallback((name: MessageRouterType) => {
-        setRouterMessage(pv =>
-            name === "back" ?
-                pv.slice(0, -1) :
-                [...pv, name]
-        )
-    }, [list, current, forward]);
 
     React.useEffect(() => {
 
-        // if data chat is exist from local and will be restore to list
+        // if data chat is exist from local and will be restore to message
         const get = window.localStorage.getItem(`_${current.username}`)
         if (get !== null) {
             const parse: LocalMessage = JSON.parse(get);
             storeLastMsg().read(parse.username)
-            setList(parse.data)
+            setMessage(parse.data)
         } else {
-            setList([])
+            setMessage([])
         }
     }, [current.username])
 
@@ -248,30 +203,27 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         return () => {
             socket.off("private-message", storeMessage)
         }
-    }, [current.username, list])
+    }, [current.username, message])
 
 
     return (
         <Context.Provider value={{
-            list: list,
-            pull: pull,
-            router: {
-                current: routerMessage,
-                fn: {
-                    handleMessageRouter: handleRouterMessage
-                }
-            },
-            forward: forward,
+            message: message,
             fn: {
-                pullMessage: pullMessage,
                 sendMessage: sendMessage,
                 removeMessage: removeMessage,
-                removePull: removePull,
                 removeAllMessage: removeAllMessage,
-                handleForward: handleForward,
             }
         }}>
-            {children}
+            <RouterMessageContext>
+                <SelectMessageContext>
+                    <PullMessageContext>
+                        <SearchContactContext>
+                            {children}
+                        </SearchContactContext>
+                    </PullMessageContext>
+                </SelectMessageContext>
+            </RouterMessageContext>
         </Context.Provider>
     )
 }

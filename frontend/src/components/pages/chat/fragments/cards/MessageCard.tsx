@@ -7,6 +7,7 @@ import MessageCardListMenu from '../listMenu/MessageCardListMenu';
 import ModalTransparent from '@components/core/ModalTransparent';
 import { useMessage } from '@contexts/chat/MessageContext';
 import Cheked from './Cheked';
+import { useSelectMessage } from '@contexts/chat/message/SelectMessageContext';
 
 function MessageCard({
     data
@@ -15,7 +16,7 @@ function MessageCard({
 }) {
 
     const [tglList, setTglList] = useState(false);
-    const { forward, fn: { handleForward } } = useMessage()
+    const { select, fn: { handleSelect } } = useSelectMessage();
     const { user } = useSession();
     const current: string = "private";
 
@@ -25,12 +26,13 @@ function MessageCard({
         return `${now.getHours()}:${now.getMinutes()}`
     }
 
-    const getExistForward = forward.find(msg => msg.id === data.id) ? true : false;
+    const getExistForward = select.data.find(msg => msg.id === data.id) ? true : false;
 
     return (
         <div
-            onClick={() => forward.length >= 1 ? handleForward(data) : null}
-            className={`w-full relative flex my-2 text-white ${getExistForward && "bg-bg-primary"} ${forward.length >= 1 && "cursor-pointer"}`}
+            id={data.id}
+            onClick={() => select.status ? handleSelect(data) : null}
+            className={`w-full relative flex my-2 text-white ${getExistForward && "bg-bg-primary"} ${select.data.length >= 1 && "cursor-pointer"}`}
             style={{
                 justifyContent: data.info.from === user.username ? "flex-end" : "flex-start"
             }}
@@ -38,11 +40,11 @@ function MessageCard({
 
 
             {
-                //  Action forward if message exist on forward array and msg from same xurrent user 
-                forward.length >= 1 && data.info.from !== user.username && (
+                //  Action select.data if message exist on select.data array and msg from same xurrent user 
+                select.status && data.info.from !== user.username && (
                     <Cheked value={getExistForward} />
                 )
-                // Action forward if message exist on forward array
+                // Action select.data if message exist on select.data array
             }
 
 
@@ -81,7 +83,7 @@ function MessageCard({
 
                     {/* Toggle list message menu button start */}
                     {
-                        forward.length === 0 && (
+                        select.data.length === 0 && (
                             <button
                                 onClick={() => setTglList(pv => !pv)}
                                 className={`absolute right-0 shadow-lg top-0 hidden rounded-full ${user.username === data.info.from ? "bg-green-primary" : "bg-hover-color"} hidden group-hover:flex`}>
@@ -173,11 +175,11 @@ function MessageCard({
 
 
             {
-                //  Action forward if message exist on forward array and msg from not equal xurrent user 
-                forward.length >= 1 && data.info.from === user.username && (
+                //  Action select.data if message exist on select.data array and msg from not equal xurrent user 
+                select.status && data.info.from === user.username && (
                     <Cheked value={getExistForward} />
                 )
-                //  Action forward if message exist on forward array 
+                //  Action select.data if message exist on select.data array 
             }
 
 

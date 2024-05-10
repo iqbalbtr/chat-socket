@@ -1,15 +1,14 @@
+import { useSearchMessage } from "@contexts/chat/message/SearchMessagteContext";
 import { colors } from "../../../../../../constants/color"
 import Icon from "../../../../../../constants/icons";
-import { useState } from "react";
-import { useMessage } from "@contexts/chat/MessageContext";
+import { useRouterMessage } from "@contexts/chat/message/RouterMessageContext";
+import SearchMessageCard from "./components/SearchMessageCard";
 
 function MessageSearchContent() {
 
-    const [seacrh, setSearch] = useState({
-        text: "",
-        status: false
-    });
-    const {router:{ fn:{handleMessageRouter}}} = useMessage()
+    const { fn: { handleRouterMessage } } = useRouterMessage();
+    const { search, fn: { handleSearch, handleReset } } = useSearchMessage();
+
 
     return (
         <div
@@ -19,13 +18,13 @@ function MessageSearchContent() {
                 overflow: "hidden"
             }}
         >
-            <div className='text-white bg-bg-secondary mb-16 h-fit'>
+            <div className='text-white bg-bg-secondary mb-16 h-fit border-2 border-bg-primary'>
                 <div className={`bg-bg-primary flex gap-2 px-3 items-center py-3.5`}>
                     <button
                         style={{
                             cursor: "pointer"
                         }}
-                        onClick={() => handleMessageRouter("back")}
+                        onClick={() => handleRouterMessage("back")}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width={30} viewBox="0 0 24 24" id="times">
                             <path fill={colors.ICON_COLOR}
@@ -39,8 +38,10 @@ function MessageSearchContent() {
                     <div>
                         <div className="p-4 relative">
                             {
-                                seacrh.text || seacrh.status ?
-                                    <button onClick={() => setSearch({ text: "", status: false })}>
+                                search.value ?
+                                    <button
+                                        onClick={() => handleReset()}
+                                    >
                                         {
                                             Icon.arrow_left({
                                                 size: 25,
@@ -60,14 +61,21 @@ function MessageSearchContent() {
                                     </button>
                             }
                             <input
-                                onChange={(e) => setSearch(pv => ({ ...pv, text: e.target.value }))}
-                                onFocus={() => setSearch(pv => ({ ...pv, status: true }))}
-                                onBlur={() => setSearch(pv => ({ ...pv, status: false }))}
+                                onChange={(e) => handleSearch(e.target.value)}
+                                // onFocus={() => setSearch(pv => ({ ...pv, status: true }))}
+                                // onBlur={() => setSearch(pv => ({ ...pv, status: false }))}
                                 type="text"
-                                value={seacrh.text}
+                                value={search.value}
                                 className="py-1 px-2 pl-8 rounded-md bg-hover-color w-full"
                             />
                         </div>
+
+                        <div className="flex flex-col gap-2">
+                            {
+                                search.data.map(ms => <SearchMessageCard data={ms} />)
+                            }
+                        </div>
+
                     </div>
                 </div>
             </div>

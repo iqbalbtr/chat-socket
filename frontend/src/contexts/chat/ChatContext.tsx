@@ -1,6 +1,7 @@
 import React from "react";
 import MessageContext from "./MessageContext";
 import ContactContext from "./ContactContext";
+import SearchMessageContext from "./message/SearchMessagteContext";
 
 export type ContactType = {
     id: number;
@@ -48,8 +49,8 @@ type ContextProps = {
 }
 
 export type ChatType = "group" | "private" | "idle"
-export type ChatRouterType = "search" | "user_info" | "idle"
-export type ChatRouterActive = ["search","user_info"]
+export type ChatRouterType = "search" | "user_info" | "modal_share" | "modal_forward" | "idle"
+export type ChatRouterActive = ["search", "user_info", "modal_share", "modal_forward"]
 
 const Context = React.createContext<ContextProps>({
     current: {},
@@ -73,20 +74,20 @@ function ChatContext({
 
     const [current, setCurrent] = React.useState<Partial<ContactType>>({});
     const [statusChat, setStatusChat] = React.useState<ChatType>("idle");
-    
+
 
     // handle current user chat
     const handleCurrent = React.useCallback((curr: ContactType, type: "private" | "group") => {
         setCurrent(curr);
         setStatusChat(type)
     }, [current, statusChat]);
-    
+
     const removeCurrent = React.useCallback(() => {
         setCurrent({});
         setStatusChat("idle")
     }, [current, statusChat]);
 
-    
+
 
     return (
         <Context.Provider value={{
@@ -99,7 +100,9 @@ function ChatContext({
         }}>
             <ContactContext>
                 <MessageContext>
-                    {children}
+                    <SearchMessageContext>
+                        {children}
+                    </SearchMessageContext>
                 </MessageContext>
             </ContactContext>
         </Context.Provider>

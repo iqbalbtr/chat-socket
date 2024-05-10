@@ -6,17 +6,16 @@ import { useChat } from '@contexts/chat/ChatContext';
 import SwitchLayout from '@components/layouts/SwitchLayout';
 import MessageProfileContent from './fragments/message/profileContent/MessageProfileContent';
 import MessageSearchContent from './fragments/message/searchContent/MessageSeacrhContent';
+import ModalRouteHandler from './fragments/ModalRouteHandler';
+import ShareContact from './fragments/message/profileContent/chiild/ShareContact';
+import { useRouterMessage } from '@contexts/chat/message/RouterMessageContext';
 
 
 
 function ChatContainer() {
 
   const { chatType } = useChat();
-  const {
-    router:{
-      current
-    }
-  } = useMessage();
+  const { content, modal } = useRouterMessage();
 
   return (
     <div
@@ -31,7 +30,7 @@ function ChatContainer() {
           <NothingChat />
       }
       <SwitchLayout<MessageRouterType>
-        name={current}
+        name={content}
         data={[
           {
             name: "user_info",
@@ -40,6 +39,21 @@ function ChatContainer() {
           {
             name: "search",
             children: <MessageSearchContent />
+          }
+        ]}
+      />
+      <ModalRouteHandler
+        name={modal}
+        child={[
+          {
+            name: "forward",
+            label: "Teruskan pesan",
+            children: ""
+          },
+          {
+            name: "share",
+            label: "Bagikan kontak",
+            children: <ShareContact />
           }
         ]}
       />

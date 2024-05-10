@@ -5,13 +5,13 @@ function ContactCard({
     data: ContactType
 }) {
 
-    const { fn: { handleCurrent } } = useChat();
-
+    const { current, fn: { handleCurrent } } = useChat();
+ 
     return (
 
         <div
             onClick={() => handleCurrent(data, "private")}
-            className="bg-bg-secondary px-3 my-1 w-full p-2 border-b-[1px] border-[#212c33] text-white"
+            className={`bg-bg-secondary px-3 w-full p-2 py-3 border-b-[1px] border-[#212c33] text-white hover:bg-hover-color ${current.username === data.username && "bg-hover-color"}`}
         >
             <div
                 className="flex w-full"
