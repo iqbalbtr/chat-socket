@@ -3,7 +3,7 @@ import PrfofleInputField from '../../profileContent/PrfofleInputField'
 import HeaderContactLayout from '../../HeaderContactLayout'
 import Icon from '../../../../../../../constants/icons'
 
-function DetailGroup({ back, detailGroup, setDetailGroup }: { back: Dispatch<SetStateAction<boolean>>, detailGroup: any, setDetailGroup: any }) {
+function DetailGroup({ back, handleGroup, handleCreate }: { back: Dispatch<SetStateAction<boolean>>, handleGroup: any, handleCreate: any }) {
     return (
         <div className='fixed min-h-screen w-[31%] left-0 top-0 bg-bg-secondary'>
             <HeaderContactLayout
@@ -27,13 +27,13 @@ function DetailGroup({ back, detailGroup, setDetailGroup }: { back: Dispatch<Set
                     placeholder='Group subject (optional)'
                         type="text"
                         className={`bg-transparent py-2 w-full outline-none text-base text-white border-b-2 border-hover-color focus:border-green-accent`}
-                    // onChange={(e) => setString(e.target.value)}
+                    onChange={(e) => handleGroup("name", e.target.value)}
                     />
                 </div>
 
                 <div className='w-full flex justify-center pb-4 bg-bg-secondary py-5 pt-32'>
                     <button
-
+                    onClick={handleCreate}
                         className='bg-green-accent p-1 rounded-full'
                     >
                         {Icon.check({

@@ -4,12 +4,13 @@ import { useSession } from '@providers/AuthProvider'
 import Icon from '../../../../../../constants/icons';
 import { colors } from '../../../../../../constants/color';
 import PrfofleInputField from './PrfofleInputField';
+import ContactContentLayout from '../ContactContentLayout';
 
 function ProfileContentContact() {
 
   const { user } = useSession();
   return (
-    <div className='fixed min-h-screen w-[31%] left-0 top-0 bg-bg-secondary'>
+    <ContactContentLayout>
       <HeaderContactLayout
         label='Profile'
       />
@@ -42,7 +43,7 @@ function ProfileContentContact() {
           />
         </div>
       </div>
-    </div>
+    </ContactContentLayout>
   )
 }
 

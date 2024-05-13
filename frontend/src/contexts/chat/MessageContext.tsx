@@ -1,6 +1,6 @@
 import { useSession } from '@providers/AuthProvider';
 import { useSocket } from '@providers/SocketProvider';
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MsgType, useChat } from './ChatContext';
 import { useContact } from './ContactContext';
 import RouterMessageContext from './message/RouterMessageContext';
@@ -46,36 +46,50 @@ function MessageContext({ children }: { children: React.ReactNode }) {
     const { user: { username } } = useSession();
     const { current, fn: { removeCurrent } } = useChat();
     const { socket } = useSocket();
-    const { fn: { addContactNew, storeLastMsg } } = useContact();
+    const { fn: { addContactNew, storeLastMsg, storeLastMsgUnRead } } = useContact();
 
     const storeMessage = React.useCallback((msg: MsgType) => {
-
         // store message to local
         const get = window.localStorage.getItem(`_${msg.info.from}`);
+
+        if(current.username && current.username === msg.info.from){
+            msg = {
+                ...msg,
+                info: {
+                    ...msg.info,
+                    read: true
+                }
+            };
+        }
+
         if (get !== null) {
             const parse: LocalMessage = JSON.parse(get);
             window.localStorage.setItem(`_${msg.info.from}`, JSON.stringify({
                 ...parse,
                 data: [...parse.data, msg]
             }));
-
+            if(!current.username || current.username && current.username !== msg.info.from){
+                storeLastMsgUnRead(parse.data, msg)
+            }
         } else {
             const payload: LocalMessage = {
                 username: msg.info.from,
                 data: [msg]
             }
+            storeLastMsgUnRead(message, msg)
             window.localStorage.setItem(`_${msg.info.from}`, JSON.stringify(payload));
             addContactNew(msg.info.from)
         }
 
+        console.log("cuurernt", current.username);
+        
         // if message is from the same receipent or not
-        if (current.username === msg.info.from) {
+        if (current.username && current.username === msg.info.from) {
             setMessage(pv => [...pv, msg]);
-            storeLastMsg().store(msg.info.from, msg.msg, true);
-        } else {
-            storeLastMsg().store(msg.info.from, msg.msg, false);
         }
 
+        
+        storeLastMsg(msg.info.from, msg.msg);
     }, [message, current.username])
 
     const sendMessage = React.useCallback(({
@@ -121,26 +135,36 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         // send message using socket
         socket.emit("private-message", payload);
 
+        const msgPayload = {
+            ...payload,
+            info: {
+                ...payload.info,
+                read: true
+            }
+        }
+
+        console.log("pay cur", msgPayload);
+        
 
         // store to local
         window.localStorage.setItem(`_${current.username}`, JSON.stringify({
             username: current.username,
-            data: [...message, { ...payload, info: { ...payload.info, read: true } }]
+            data: [...message, msgPayload]
         } as LocalMessage));
 
         // message forward will reset current
         if (payload.fwd) {
             removeCurrent();
         } else {
-            setMessage([...message, payload]);
+            setMessage([...message, msgPayload]);
         }
 
+
         // store last message read: true because sending is same from current user
-        storeLastMsg().store(to, input, true);
+        storeLastMsg(to, input)
 
         callback(true, payload);
-    }, [message, current]);
-
+    }, [message, current.username]);
 
     const removeMessage = React.useCallback((id: string, username: string, callback: (err: string, result?: MsgType) => void) => {
         const find = message.find(msg => msg.id === id);
@@ -158,9 +182,9 @@ function MessageContext({ children }: { children: React.ReactNode }) {
 
             // if last message is empty or not
             if (message.length === 1) {
-                storeLastMsg().store(current.username!, "", true);
+                storeLastMsg(current.username!, "");
             } else {
-                storeLastMsg().store(current.username!, insert[insert.length - 1].msg, true);
+                storeLastMsg(current.username!, insert[insert.length - 1].msg);
             }
             callback("", find);
         } else {
@@ -181,7 +205,7 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         }
 
         // reset last msg
-        storeLastMsg().store(current.username!, "", true);
+        storeLastMsg(current.username!, "");
     }, [message, current]);
 
 
@@ -191,20 +215,43 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         const get = window.localStorage.getItem(`_${current.username}`)
         if (get !== null) {
             const parse: LocalMessage = JSON.parse(get);
-            storeLastMsg().read(parse.username)
-            setMessage(parse.data)
+            setMessage(parse.data.map(foo => ({...foo, info: {...foo.info, read: true}})))
         } else {
             setMessage([])
         }
     }, [current.username])
 
     React.useEffect(() => {
-        socket.on("private-message", storeMessage);
-        return () => {
-            socket.off("private-message", storeMessage)
-        }
-    }, [current.username, message])
 
+        if (username) {
+            socket.on("private-message", (msg: MsgType) => {
+                storeMessage(msg);
+                // storeLastMsgUnRead(message, msg);
+                console.log("msg =>", msg);
+                
+            });
+            socket.on("resend-msg", (msg: MsgType) => {
+                console.log("resend =>", msg);
+                
+                storeMessage(msg);
+                // storeLastMsgUnRead(message, msg);
+            })
+        }
+        return () => {
+            socket.off("private-message");
+            socket.off("resend-msg");
+        }
+    }, [username, socket, current.username, message])
+
+    let onceResend = false
+    useEffect(() => {
+        if (username) {
+            if (!onceResend) {
+                socket.emit("resend-msg", username);                
+                onceResend = true
+            }
+        }
+    }, [username])
 
     return (
         <Context.Provider value={{

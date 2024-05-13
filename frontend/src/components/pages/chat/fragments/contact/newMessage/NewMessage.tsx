@@ -3,6 +3,7 @@ import HeaderContactLayout from '../HeaderContactLayout';
 import { useContact } from '@contexts/chat/ContactContext';
 import ContactGrupCard from '../NewGrupContent/components/ContactGrupCard';
 import { useRouterContact } from '@contexts/chat/contact/RouterContactContext';
+import ContactContentLayout from '../ContactContentLayout';
 
 function NewMessage() {
 
@@ -10,7 +11,7 @@ function NewMessage() {
     const { fn: { handleContent } } = useRouterContact();
 
     return (
-        <div className='fixed min-h-screen w-[31%] left-0 top-0 bg-bg-secondary'>
+        <ContactContentLayout>
             <HeaderContactLayout
                 label='New Chat'
             />
@@ -40,7 +41,7 @@ function NewMessage() {
                 </div>
 
             </div>
-        </div>
+        </ContactContentLayout>
     )
 }
 

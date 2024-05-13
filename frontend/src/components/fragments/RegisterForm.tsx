@@ -13,11 +13,13 @@ function RegisterForm() {
         e.preventDefault();
         const inputs = new FormData(form.current!);
         const user = inputs.get("username") as string;
+        const email = inputs.get("email") as string;
         const pass = inputs.get("password") as string;
 
         if(!pass && !user) return;
         register({
             username: user,
+            email: email,
             password: pass
         }, (err) => {
             if(err){
@@ -36,6 +38,10 @@ function RegisterForm() {
                     <div className={style.field}>
                         <label htmlFor="username">Username</label>
                         <input type="text" name='username' id='username' />
+                    </div>
+                    <div className={style.field}>
+                        <label htmlFor="username">Email</label>
+                        <input type="email" name='email' id='email' />
                     </div>
                     <div className={style.field}>
                         <label htmlFor="password">Password</label>

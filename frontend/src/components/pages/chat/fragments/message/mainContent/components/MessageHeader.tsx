@@ -31,10 +31,10 @@ function MessageHeader() {
 
     return (
         <div className={`w-full flex justify-between py-2.5 px-5 bg-bg-primary text-white items-center relative`}>
-            <div className="flex gap-2 items-center" onClick={() => handleRouterMessage("user_info")}>
-                <span className='w-[35px] flex justify-center items-center aspect-square rounded-full bg-gray-400'>{chat.current.name?.charAt(0).toUpperCase()}</span>
+            <div className="flex gap-2 items-center cursor-pointer" onClick={() => handleRouterMessage("user_info")}>
+                <span className='w-[35px] flex justify-center items-center aspect-square rounded-full bg-gray-400'>{chat.current.first_name?.charAt(0).toUpperCase()}</span>
                 <div>
-                    <h3 className='font-semibold'>{chat.current.name}</h3>
+                    <h3 className='font-semibold'>{chat.current.first_name} {chat.current.last_name!}</h3>
                     <span>{getLastActive()}</span>
                 </div>
             </div>

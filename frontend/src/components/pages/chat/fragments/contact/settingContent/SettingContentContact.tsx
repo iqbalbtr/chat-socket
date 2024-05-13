@@ -1,12 +1,13 @@
+import ContactContentLayout from '../ContactContentLayout'
 import HeaderContactLayout from '../HeaderContactLayout'
 
 function SettingContentContact() {
     return (
-        <div className='fixed min-h-screen w-[31%] left-0 top-0 bg-bg-secondary'>
+        <ContactContentLayout>
             <HeaderContactLayout
                 label='Setting'
             />
-        </div>
+        </ContactContentLayout>
     )
 }
 

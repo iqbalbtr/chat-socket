@@ -1,19 +1,22 @@
-import React from "react"
+import React, { useState } from "react"
 import { Loading } from "@hooks/useFetch";
 import { useSession } from "@providers/AuthProvider";
-import { ContactType, localMsgType, useChat } from "./ChatContext";
+import { ContactType, MsgType, localMsgType, useChat } from "./ChatContext";
 import { useSocket } from "@providers/SocketProvider";
 import RouterContactContext from "./contact/RouterContactContext";
 import SearchContactContext from "./contact/SearchContactContext";
+import { useLocation } from "react-router-dom";
+import GroupContactContext from "./contact/GroupContactContext";
 
 type ContextType = {
     contact: ContactType[];
     error: string;
     fn: {
-        addContact: (payload: { username: string, name: string }, callback: (err: string, result?: ContactType) => void) => Promise<void>,
+        addContact: (payload: { username: string, last_name: string, first_name: string }, callback: (err: string, result?: ContactType) => void) => Promise<void>,
         removeContact: (username: string, callback: (err: string, result?: ContactType) => void) => Promise<void>;
         updateContact: (payload: { id: number, name: string }, callback: (err: string) => void) => Promise<void>;
-        storeLastMsg: () => { store: (user: string, msg: string, read: boolean) => void, read: (user: string) => void };
+        storeLastMsg: (user: string, msg: string) => void;
+        storeLastMsgUnRead: (message: MsgType[], msg: MsgType) => void;
         addContactNew: (username: string) => void;
     }
 };
@@ -27,6 +30,7 @@ const Context = React.createContext<ContextType>({
         removeContact: async () => { },
         updateContact: async () => { },
         storeLastMsg: () => ({ store: () => { }, read: () => { } }),
+        storeLastMsgUnRead: () => { }
     }
 });
 
@@ -34,19 +38,36 @@ export function useContact() {
     return React.useContext(Context);
 }
 
+type UnReadType = {
+    data: MsgType[];
+    count: number
+}
 
 function ContactContext({ children }: { children: React.ReactNode }) {
 
     const { user } = useSession();
     const { socket } = useSocket();
 
-    const [list, setList] = React.useState<ContactType[]>([]); 
+    const [list, setList] = React.useState<ContactType[]>([]);
     const [listNew, setListNew] = React.useState<ContactType[]>([]);
     const [status, setStatus] = React.useState<Loading>("idle");
     const [error, setError] = React.useState("");
+    const location = useLocation()
 
 
     const { current, fn: { handleCurrent } } = useChat();
+
+    function getUnReadMessage(user: string) {
+        const local = window.localStorage.getItem(`_${user}`);
+
+        if (local !== null) {
+            const result: MsgType[] = (JSON.parse(local) as localMsgType).data.filter(foo => !foo.info.read);
+
+            return result
+        } else {
+            return []
+        }
+    }
 
     const getContact = React.useCallback(async () => {
         setStatus("loading");
@@ -67,6 +88,8 @@ function ContactContext({ children }: { children: React.ReactNode }) {
         } else {
             setStatus("success");
             const data = res.result.data.map((con: ContactType) => ({ ...con, new: false }));
+            console.log(res);
+
 
             // initial local new_contact
             const get = window.localStorage.getItem("_new_contact")
@@ -81,27 +104,31 @@ function ContactContext({ children }: { children: React.ReactNode }) {
             setList(pv => pv.map(con => {
                 const last = window.localStorage.getItem(`_${con.username}`);
                 if (last !== null) {
-                    const parse = JSON.parse(last);
+                    const parse: localMsgType = JSON.parse(last);
+                    const unread = getUnReadMessage(con.username);
                     if (parse.data.length === 0) return con
                     return {
                         ...con,
                         lastMsg: {
                             msg: parse.data[parse.data.length - 1].msg,
-                            read: parse.data[parse.data.length - 1].info.read,
-                            time: parse.data[parse.data.length - 1].info.timestamp
-                        }
+                            time: parse.data[parse.data.length - 1].info.timestamp,
+                        },
+                        unread: unread
                     }
                 } else {
-                    return con
+                    return {
+                        ...con,
+                        unread: []
+                    }
                 }
 
-            }).sort((a, b) => (b.lastMsg?.time!) - (a.lastMsg?.time!)))
+            }).sort((a, b) => (b.lastMsg?.time! || 0) - (a.lastMsg?.time! || 0)))
         }
 
 
     }, [list, status])
 
-    const addContact = React.useCallback(async (payload: { username: string, name: string }, callback: (err: string, result?: ContactType) => void) => {
+    const addContact = React.useCallback(async (payload: { username: string, first_name: string, last_name: string }, callback: (err: string, result?: ContactType) => void) => {
         setStatus("loading");
         const response = await fetch("http://localhost:8080/api/contacts", {
             method: "POST",
@@ -136,14 +163,18 @@ function ContactContext({ children }: { children: React.ReactNode }) {
                     if (cons.username === res.result.username) {
                         return {
                             ...res.result,
-                            new: false
+                            new: false,
+                            unread: []
                         }
                     } else {
-                        return cons
+                        return {
+                            ...cons,
+                            unread: []
+                        }
                     }
                 }))
             } else {
-                setList([...list, res.result]);
+                setList([...list, { ...res.result, unread: [] }]);
             }
 
 
@@ -234,67 +265,82 @@ function ContactContext({ children }: { children: React.ReactNode }) {
         const exist = list.filter(cons => cons.username === username);
         if (exist.length >= 1) return;
         const payload: ContactType = {
-            id: Math.floor(Math.random() * 10000),
-            name: `@${username}`,
+            id: Math.floor(Math.random() * 10000).toString(),
+            first_name: `@${username}`,
             username: username,
-            new: true
+            new: true,
+            unread: []
         }
 
-        setListNew(pv => [...pv, payload]);
-        setList(pv => [...pv, payload])
+        setListNew(pv => pv.find(foo => foo.username === payload.username) ? pv : [...pv, payload]);
+        setList(pv => pv.find(foo => foo.username === payload.username) ? pv : [...pv, payload])
 
         window.localStorage.setItem("_new_contact", JSON.stringify([...listNew, payload]))
     }, [list, user, listNew])
 
-    const storeLastMsg = React.useCallback(() => {
-
-        // this function will change list contact and sort contact 
-        return {
-            store: (user: string, msg: string, read: boolean) => {
-                setList(pv => pv.map(con => {
-                    if (con.username === user) {
-                        return {
-                            ...con,
-                            lastMsg: {
-                                read: read,
-                                msg: msg,
-                                time: new Date().getTime()
-                            }
+    const storeLastMsg = React.useCallback((user: string, msg: string) => {
+        setList(pv => {
+            const exist = pv.find(cur => cur.username === user);
+            if (exist) {
+                return [
+                    {
+                        ...exist,
+                        lastMsg: {
+                            msg: msg,
+                            time: new Date().getTime()
                         }
-                    } else {
-                        return con
-                    }
-                }).sort((a, b) => (b.lastMsg?.time || 0) - (a.lastMsg?.time || 0)));
-            },
-            read: (user: string) => {
-                const local = window.localStorage.getItem(`_${user}`);
-
-                // if data chat exist and will be update
-                if (local !== null) {
-                    const parse: localMsgType = JSON.parse(local);
-                    const payload: localMsgType = {
-                        ...parse,
-                        data: parse.data.map(last => ({ ...last, info: { ...last.info, read: true } }))
-                    }
-                    window.localStorage.setItem(`_${current.username!}`, JSON.stringify(payload));
-                }
-
-                setList(pv => pv.map(con => {
-                    if (con.username === user) {
-                        return {
-                            ...con,
-                            lastMsg: {
-                                ...con.lastMsg!,
-                                read: true
-                            }
-                        }
-                    } else {
-                        return con
-                    }
-                }).sort((a, b) => (b.lastMsg?.time || 0) - (a.lastMsg?.time || 0)));
+                    },
+                    ...pv.filter(foo => foo.id !== exist.id)
+                ]
+            } else {
+                return pv
             }
-        }
+        })
     }, [list, listNew, current.username]);
+
+    const storeLastMsgUnRead = React.useCallback((message: MsgType[], msg: MsgType) => {
+        const result = [...message.filter(foo => !foo.info.read), ...(current.username !== msg.info.from ? [msg] : [])];
+        console.log(result);
+
+        setList(pv => pv.map(foo => {
+            if (foo.username === msg.info.from) {
+                return {
+                    ...foo,
+                    unread: result
+                }
+            } else {
+                return foo
+            }
+        }));
+
+    }, [list, listNew, current.username]);
+
+    const updateLastMsgUnRead = React.useCallback((user: string) => {
+
+        const local = window.localStorage.getItem(`_${user}`);
+
+        if (local !== null) {
+            const parse = (JSON.parse(local) as localMsgType).data.map(foo => ({ ...foo, info: { ...foo.info, read: true } }));
+            setList(pv => pv.map(foo => {
+                if (foo.username === current.username) {
+                    return {
+                        ...foo,
+                        unread: []
+                    }
+                } else {
+                    return foo
+                }
+            }))
+
+
+            window.localStorage.setItem(`_${user}`, JSON.stringify({
+                username: user,
+                data: parse
+            }))
+        }
+
+    }, [list, listNew, current.username]);
+
 
     React.useEffect(() => {
         getContact()
@@ -321,7 +367,11 @@ function ContactContext({ children }: { children: React.ReactNode }) {
         return () => {
             socket.off("user-status");
         }
-    }, []);
+    }, [location.pathname]);
+
+    React.useEffect(() => {
+        if (current.username) updateLastMsgUnRead(current.username)
+    }, [current.username]);
 
 
     return (
@@ -334,13 +384,16 @@ function ContactContext({ children }: { children: React.ReactNode }) {
                 updateContact: updateContact,
                 addContactNew: addContactNew,
                 storeLastMsg: storeLastMsg,
+                storeLastMsgUnRead: storeLastMsgUnRead
             }
         }}
         >
             <RouterContactContext>
-                <SearchContactContext>
-                    {children}
-                </SearchContactContext>
+                <GroupContactContext>
+                    <SearchContactContext>
+                        {children}
+                    </SearchContactContext>
+                </GroupContactContext>
             </RouterContactContext>
         </Context.Provider>
     )

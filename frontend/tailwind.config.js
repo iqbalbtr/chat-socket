@@ -15,7 +15,7 @@ export default {
         "bg-container": "#233138",
         'icon-color': '#aebbc2',
         'message': '#202c33',
-        'danger': '#06cf9c',
+        'danger': '#f25c6e',
         "color-text": "#e8deba",
         "border-color": "#212c33",
         "hover-color": "#2a3942"

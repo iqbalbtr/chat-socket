@@ -1,4 +1,3 @@
-import { useMessage } from "@contexts/chat/MessageContext"
 import { colors } from "../../../../../constants/color"
 import Icon from "../../../../../constants/icons"
 import { useRouterMessage } from "@contexts/chat/message/RouterMessageContext";

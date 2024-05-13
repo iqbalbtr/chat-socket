@@ -55,8 +55,7 @@ export default function SearchContactContext({ children }: { children: ReactNode
             data: contact.filter(con => {
                 (
                     con.name.includes(name.toLowerCase()) ||
-                    con.username.includes(name.toLowerCase()) &&
-                    con.lastMsg?.read === search.byRead
+                    con.username.includes(name.toLowerCase())
                 )
             })
         }))

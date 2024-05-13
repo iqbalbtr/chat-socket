@@ -1,12 +1,16 @@
 import { ContactType, useChat } from '@contexts/chat/ChatContext';
+import { getTimeNotif } from '@utils/timeNotif';
 function ContactCard({
     data
 }: {
     data: ContactType
 }) {
 
-    const { current, fn: { handleCurrent } } = useChat();
- 
+    const { current, fn: { handleCurrent } } = useChat();    
+
+    console.log(data);
+    
+
     return (
 
         <div
@@ -17,33 +21,35 @@ function ContactCard({
                 className="flex w-full"
             >
                 <span
-                className="w-[45px] h-[45px] aspect-square rounded-full bg-gray-500 flex items-center justify-center text-xl"
+                    className="w-[45px] h-[45px] aspect-square rounded-full bg-gray-500 flex items-center justify-center text-xl"
                 >
-                    {data.name.charAt(0).toUpperCase()}
+                    @
                 </span>
                 <div
                     className="ml-3 flex w-full justify-between items-start"
                 >
                     <div
                     >
-                        <h3 className="font-semibold">{data.name}</h3>
+                        <h3 className="font-semibold">{data.first_name}</h3>
                         <div>
                             <p
-                            className="text-icon-color"
+                                className="text-icon-color"
                             >{data.lastMsg?.msg}</p>
                         </div>
                     </div>
-                    <div>
-                        <p className="text-[.7rem]">Friday</p>
+                    <div className='flex flex-col justify-between gap-2 items-end'>
+                        {data.lastMsg && <p className={`text-[.7rem] ${data.unread.length >= 1 && "text-green-accent"}`}>{getTimeNotif(data.lastMsg.time)}</p>}
+                        {
+                            data.unread.length >= 1 && (
+                                <span
+                                    className='w-[20px] h-[20px] rounded-full bg-green-accent flex justify-center items-center text-bg-primary text-sm'
+                                >
+                                    {data.unread.length}
+                                </span>
+                            )
+                        }
                     </div>
                 </div>
-                {data.lastMsg && !data.lastMsg?.read && <span style={{
-                    background: "var(--primary-color)",
-                    width: "10px",
-                    aspectRatio: "1/1",
-                    position: "absolute",
-                    right: 0
-                }}></span>}
             </div>
         </div>
     )

@@ -1,12 +1,14 @@
 import { useEffect } from 'react'
 import { useSession } from '@providers/AuthProvider'
 import { useRouterContact } from '@contexts/chat/contact/RouterContactContext';
+import { useChat } from '@contexts/chat/ChatContext';
 
 
 
 function ContactMenuList({ handleTgl }: { handleTgl: () => void; }) {
 
   const { status, logout } = useSession();
+  const { fn: { removeCurrent } } = useChat();
   const { content, fn: { handleContent } } = useRouterContact();
 
   useEffect(() => {
@@ -50,7 +52,10 @@ function ContactMenuList({ handleTgl }: { handleTgl: () => void; }) {
         >
           Setelan
         </button>
-        <button onClick={() => logout()} disabled={status === "loading"}>
+        <button onClick={() => {
+          logout()
+          removeCurrent()
+        }} disabled={status === "loading"}>
           {status === "loading" ? "Loading..." : "Keluar"}
         </button>
       </div>

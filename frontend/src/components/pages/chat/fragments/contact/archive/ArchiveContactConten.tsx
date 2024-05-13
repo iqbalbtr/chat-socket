@@ -3,6 +3,7 @@ import HeaderContactLayout from "../HeaderContactLayout"
 import ContactGrupCard from "../NewGrupContent/components/ContactGrupCard";
 import { useChat } from "@contexts/chat/ChatContext";
 import ContactCard from "../../cards/ContactCard";
+import ContactContentLayout from "../ContactContentLayout";
 
 function ArchiveContactConten() {
 
@@ -10,7 +11,7 @@ function ArchiveContactConten() {
     const { fn: { handleCurrent } } = useChat()
 
     return (
-        <div className='fixed min-h-screen w-[31%] left-0 top-0 bg-bg-secondary'>
+        <ContactContentLayout>
             <HeaderContactLayout
                 label='Di Arsipkan'
             />
@@ -31,7 +32,7 @@ function ArchiveContactConten() {
 
                 </div>
             </div>
-        </div>
+        </ContactContentLayout>
     )
 }
 

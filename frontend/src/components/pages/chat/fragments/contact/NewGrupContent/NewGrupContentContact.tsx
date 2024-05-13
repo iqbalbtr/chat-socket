@@ -6,16 +6,21 @@ import { ContactType } from '@contexts/chat/ChatContext';
 import GrupListCard from './components/GrupListCard';
 import Icon from '../../../../../../constants/icons';
 import DetailGroup from './child/DetailGroup';
+import ContactContentLayout from '../ContactContentLayout';
+import { useSession } from '@providers/AuthProvider';
+import { NewGroupType, useGroupContact } from '@contexts/chat/contact/GroupContactContext';
 
 function NewGrupContentContact() {
 
     const { contact } = useContact();
+    const { fn: { handleNewGroup } } = useGroupContact();
+    const { user } = useSession()
     const [tglChlld, setTllChild] = useState(false);
-    const [group, setGroup] = useState<{ profile: File | null, name: string }>({
-        profile: null,
-        name: ""
-    })
     const [member, setMember] = useState<ContactType[]>([]);
+    const [group, setGroup] = useState<{ name: string, bio: string }>({
+        name: "",
+        bio: ""
+    });
 
 
     function handleMember(contact: ContactType) {
@@ -28,10 +33,46 @@ function NewGrupContentContact() {
         }
     }
 
+    function handleGroup(name: string, value: string) {
+        setGroup(pv => ({
+            ...pv,
+            [name]: value
+        }))
+    }
+
+    function handleCreate() {
+        if (!group.name) return
+        if (!user.id) return
+        const payload: NewGroupType = {
+            ...group,
+            member: [
+                ...member.map(foo => ({
+                    username: foo.username,
+                    role: "member"
+                })),
+                {
+                    username: user.username!,
+                    role: "admin"
+                }
+            ]
+        }
+
+        handleNewGroup(payload, (err) => {
+            if(err){
+                alert(err)
+            }
+        })
+
+    }
+
     return (
         tglChlld ?
-            <DetailGroup back={setTllChild} detailGroup={DetailGroup} setDetailGroup={setGroup} /> : (
-                <div className='fixed min-h-screen w-[31%] left-0 top-0 bg-bg-secondary'>
+            <DetailGroup
+                back={setTllChild}
+                handleGroup={handleGroup}
+                handleCreate={handleCreate}
+            /> : (
+                <ContactContentLayout>
                     <HeaderContactLayout
                         label='Add group members'
                     />
@@ -66,7 +107,7 @@ function NewGrupContentContact() {
                                 }
                             </div>
 
-                            
+
                         </div>
 
                         {
@@ -85,7 +126,7 @@ function NewGrupContentContact() {
                             )
                         }
                     </div>
-                </div>
+                </ContactContentLayout>
             )
     )
 }

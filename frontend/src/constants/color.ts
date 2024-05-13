@@ -6,7 +6,7 @@ export const colors = {
     BG_SECONDAR: "#111b21",
     ICON_COLOR: "#aebbc2",
     MESSAGE: "#202c33",
-    DANGER: "#06cf9c",
+    DANGER: "#f25c6e",
     BORDER: "#212c33",
     BG_CONTAINER: "#233138",
     HOVER_COLOR: "#2a3942"

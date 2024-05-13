@@ -14,9 +14,9 @@ function App() {
       <Route
         path="chat"
         element={
-          <ChatContext>
+          // <ChatContext>
             <ChatPage />
-          </ChatContext>
+          // </ChatContext>
         }
       />
       <Route path="auth" element={<AuthLayout />} >

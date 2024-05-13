@@ -17,7 +17,7 @@ function MessageListMenu({ back }: { back: () => void }) {
 
   return (
     <div
-      className="w-[240px] absolute right-0 bg-hover-color p-6 gap-4 flex flex-col items-start z-10"
+      className="w-[240px] absolute right-0 bg-hover-color p-6 gap-4 flex flex-col items-start z-50"
     >
       <button onClick={() => hanldeButton(() => handleRouterMessage("user_info"))}>
         Info kontak

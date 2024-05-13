@@ -4,6 +4,7 @@ import { useSession } from '@providers/AuthProvider'
 import ModalTransparent from '@components/core/ModalTransparent';
 import StatusPhoto from './child/StatusPhoto';
 import StatusText from './child/StatusText';
+import ContactContentLayout from '../ContactContentLayout';
 
 export type StatusRouterType = "idle" | "text" | "photo";
 
@@ -12,18 +13,25 @@ function StatusContentContact() {
     const { user } = useSession();
     const [statusRouter, setStatusRouter] = useState<StatusRouterType>("idle");
 
+    const [newStatus, setNewStatus] = useState<File[]>([]);
+
+    function handleNewStatus(files: FileList){
+        console.log(files);
+        
+    }
+
     function handleRouter(name: StatusRouterType) {
         setStatusRouter(name);
     }
 
     return (
         statusRouter === "text" ?
-            <StatusText 
-            back={handleRouter}
+            <StatusText
+                back={handleRouter}
             /> :
             statusRouter === "photo" ?
                 <StatusPhoto /> : (
-                    <div className='fixed min-h-screen w-[31%] left-0 top-0 bg-bg-secondary'>
+                    <ContactContentLayout>
                         <HeaderContactLayout
                             label='Status'
                         />
@@ -43,18 +51,22 @@ function StatusContentContact() {
                                 )}
                             >
                                 {(handleTgl) => (
-                                    <div className='absolute flex flex-col -bottom-full w-[180px] p-4 items-start gap-4 bg-bg-primary'>
+                                    <div className='absolute flex flex-col -bottom-full w-[180px] p-4 items-start gap-4 bg-bg-primary z-50'>
                                         <button
                                             onClick={() => {
                                                 handleRouter("photo");
-                                                handleTgl()
+                                                // handleTgl()
                                             }}
-                                        >Photos & videos
+                                        >
+                                        <input
+                                        type='file'
+                                        onChange={(e) => handleNewStatus(e.target.files!)} 
+                                        />
                                         </button>
                                         <button
                                             onClick={() => {
                                                 handleRouter("text");
-                                                handleTgl()
+                                                // handleTgl()
                                             }}
                                         >
                                             Text
@@ -75,7 +87,7 @@ function StatusContentContact() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </ContactContentLayout>
                 )
     )
 }

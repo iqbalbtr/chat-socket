@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MessageContext from "./MessageContext";
 import ContactContext from "./ContactContext";
 import SearchMessageContext from "./message/SearchMessagteContext";
 
 export type ContactType = {
-    id: number;
+    id: string;
     username: string;
-    name: string;
+    first_name: string;
+    last_name?: string;
     new: boolean;
+    unread: MsgType[];
     lastMsg?: {
         msg: string;
-        read: boolean;
         time: number;
     };
     lastActive?: {
@@ -30,7 +31,7 @@ export type MsgType = {
     },
     pull: {
         status: boolean,
-        data?: MsgType
+        data?: MsgType 
     },
     fwd?: string;
 }
@@ -86,8 +87,6 @@ function ChatContext({
         setCurrent({});
         setStatusChat("idle")
     }, [current, statusChat]);
-
-
 
     return (
         <Context.Provider value={{

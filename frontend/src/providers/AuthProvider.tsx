@@ -5,15 +5,17 @@ import { socket } from "../socket";
 
 type StatusProps = "Authorized" | "Unauthrorized" | "loading";
 type UserProps = {
-    id: number;
+    id: string;
     username: string;
+    first_name: string;
+    last_name: string;
 }
 type ContextProps = {
     user: Partial<UserProps>;
     status: Partial<StatusProps>;
     login: (payload: PayloadProps) => Promise<void>;
     logout: () => Promise<void>;
-    register: (payload: {username: string, password: string}, callback: (err: string) => void) => Promise<void>;
+    register: (payload: {username: string, email: string, password: string}, callback: (err: string) => void) => Promise<void>;
 }
 type PayloadProps = {
     username: string;
@@ -96,7 +98,7 @@ function AuthProvider({
         }
     }, [user, status]);
 
-    const register = React.useCallback(async (payload: { username: string, password: string }, callback: (err: string) => void) => {
+    const register = React.useCallback(async (payload: { username: string, email: string, password: string }, callback: (err: string) => void) => {
         setStatus("loading");
         const response = await fetch("http://localhost:8080/auth/register", {
             method: "POST",

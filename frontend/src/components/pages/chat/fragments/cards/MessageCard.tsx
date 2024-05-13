@@ -8,6 +8,7 @@ import ModalTransparent from '@components/core/ModalTransparent';
 import { useMessage } from '@contexts/chat/MessageContext';
 import Cheked from './Cheked';
 import { useSelectMessage } from '@contexts/chat/message/SelectMessageContext';
+import { getHourTime } from '@utils/timeNotif';
 
 function MessageCard({
     data
@@ -159,7 +160,7 @@ function MessageCard({
                             }}
                             className='text-icon-color text-[12px] w-fit px-1'
                         >
-                            {getTimeMsg(data.info.timestamp)}
+                            {getHourTime(data.info.timestamp)}
                         </span>
                     </div>
                     {/* Message content */}

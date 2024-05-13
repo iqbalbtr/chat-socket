@@ -39,7 +39,7 @@ function ContactModal({ setTgl }: { setTgl: React.Dispatch<React.SetStateAction<
                 {
                     inputFocus && (
                         <button 
-                        onClick={() => updateContact({id: contact.id!, name: contact.name!}, (err) => {
+                        onClick={() => updateContact({id: contact.id!, name: contact.fisrt_name!}, (err) => {
                             if(!err){
 
                             }
