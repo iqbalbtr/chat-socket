@@ -19,10 +19,12 @@ module.exports = {
                 }
                 socket.user = result;
             });
-            const query = await prisma.user.findUnique({
+            const query = await prisma.users.findUnique({
                 where: {
                     username: auth.username,
-                    socket_token: cookies.auth_socket
+                    user_auth: {
+                        socket_token: cookies.auth_socket
+                    }
                 }
             });
 
@@ -42,17 +44,15 @@ module.exports = {
                 }
                 return result;
             })
-            const query = await prisma.user.findFirst({
+            const query = await prisma.users.findFirst({
                 where: {
                     username: verify.username,
-                    token: _token
+                    user_auth: {
+                        token: _token
+                    }
                 },
                 include: {
-                    contact_list: {
-                        select: {
-                            id: true
-                        }                        
-                    }
+                    contact_list: true
                 }
             })
             if (!query) throw new ResponseError(401, "Access denied");

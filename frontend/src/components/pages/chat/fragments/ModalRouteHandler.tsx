@@ -1,8 +1,7 @@
-import { ModalRouterMessageType, useMessage } from "@contexts/chat/MessageContext"
+import { ModalRouterMessageType } from "@contexts/chat/MessageContext"
 import { ReactNode } from "react"
 import Icon from "../../../../constants/icons";
 import { colors } from "../../../../constants/color";
-import { useContact } from "@contexts/chat/ContactContext";
 import { useRouterMessage } from "@contexts/chat/message/RouterMessageContext";
 
 

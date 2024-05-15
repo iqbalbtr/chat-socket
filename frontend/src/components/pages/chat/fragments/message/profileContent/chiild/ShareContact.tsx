@@ -2,7 +2,6 @@ import { useContact } from "@contexts/chat/ContactContext"
 import { colors } from "../../../../../../../constants/color"
 import Icon from "../../../../../../../constants/icons"
 import ContactGrupCard from "../../../contact/NewGrupContent/components/ContactGrupCard";
-import { useMessage } from "@contexts/chat/MessageContext";
 
 function ShareContact() {
 

@@ -8,10 +8,10 @@ function ContactGrupCard({ data }: { data: ContactType }) {
             <span
                 className='w-[50px] aspect-square bg-gray-500 flex justify-center items-center text-2xl rounded-full mt-2'
             >
-                {data.first_name.charAt(0).toUpperCase()}
+                {data.name.charAt(0).toUpperCase()}
             </span>
             <div className='flex pl-2 flex-col items-start gap-1 w-full border-t-[1px] border-hover-color pt-2'>
-                <h3>{data.first_name} {data.last_name!}</h3>
+                <h3>{data.name}</h3>
                 <p className='text-sm text-left text-icon-color line-clamp-1'>lesum laboriosam, lorem44 doloremque voluptatibus consectetur!</p>
             </div>
         </div>

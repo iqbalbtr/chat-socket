@@ -1,40 +1,38 @@
-import React, { useEffect } from 'react'
 import { useChat } from '@contexts/chat/ChatContext';
 import { useContact } from '@contexts/chat/ContactContext';
 import { colors } from '../../../../../../../constants/color';
-import { useMessage } from '@contexts/chat/MessageContext';
 import MessageListMenu from '../../../listMenu/MessageListMenu';
 import ModalTransparent from '@components/core/ModalTransparent';
 import { useRouterMessage } from '@contexts/chat/message/RouterMessageContext';
+import { getTimeNotif } from '@utils/timeNotif';
+import { useSession } from '@providers/AuthProvider';
 
 function MessageHeader() {
 
-    const { contact } = useContact();
+    const { current } = useChat();
+    const { contact, fn: {getGroup} } = useContact();
     const chat = useChat();
+    const {user} = useSession();
     const { fn: { handleRouterMessage } } = useRouterMessage()
 
     function getLastActive() {
-        const find = contact.find(con => con.username === chat.current.username);
-        if (!find) return;
-        if (!find.lastActive) {
-            return ""
+        if(!current) return
+        if (current?.type === "private") {
+            const time = contact.find(foo => foo.username === current?.username)
+            return time?.last_active === "online" ? "online" : getTimeNotif(new Date(time?.last_active!))
         } else {
-            if (find.lastActive.status) {
-                return 'online'
-            } else {
-                const date = new Date(find.lastActive.time);
-                return `Last active  ${date.getHours()}:${date.getMinutes()}`
-            }
+            console.log();
+            
+            return getGroup(current.username)?.member.map(foo => foo.username === user.username ? "Kamu" : foo.name).join(", ")
         }
     }
-
 
     return (
         <div className={`w-full flex justify-between py-2.5 px-5 bg-bg-primary text-white items-center relative`}>
             <div className="flex gap-2 items-center cursor-pointer" onClick={() => handleRouterMessage("user_info")}>
-                <span className='w-[35px] flex justify-center items-center aspect-square rounded-full bg-gray-400'>{chat.current.first_name?.charAt(0).toUpperCase()}</span>
+                <span className='w-[35px] flex justify-center items-center aspect-square rounded-full bg-gray-400'>{chat.current?.name?.charAt(0).toUpperCase()}</span>
                 <div>
-                    <h3 className='font-semibold'>{chat.current.first_name} {chat.current.last_name!}</h3>
+                    <h3 className='font-semibold'>{chat.current?.name}</h3>
                     <span>{getLastActive()}</span>
                 </div>
             </div>

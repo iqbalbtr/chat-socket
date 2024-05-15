@@ -13,20 +13,13 @@ function MessageProfileContent() {
     const { current, fn: { removeCurrent } } = useChat();
     const { fn: { handleModalMessage, handleRouterMessage } } = useRouterMessage();
     const [tglEdit, setTglEdit] = React.useState<boolean>(false);
-    const { contact, fn: { removeContact } } = useContact();
+    const { fn: { removeContact, getGroup } } = useContact();
 
     function getLastActive() {
-        const find = contact.find(con => con.username === current.username);
-        if (!find) return;
-        if (!find.lastActive) {
-            return ""
+        if(current?.type === "group"){
+            return `group ${getGroup(current.username)?.member.length} anggota`
         } else {
-            if (find.lastActive.status) {
-                return 'online'
-            } else {
-                const date = new Date(find.lastActive.time);
-                return `Last active  ${date.getHours()}:${date.getMinutes()}`
-            }
+            return `@${current?.username}`
         }
     }
 
@@ -54,18 +47,17 @@ function MessageProfileContent() {
                             <span
                                 className='w-[190px] aspect-square rounded-full bg-icon-color flex justify-center items-center text-3xl'
                             >
-                                {current.username?.charAt(0).toUpperCase()}
+                                {current?.username?.charAt(0).toUpperCase()}
                             </span>
                             <p
                                 className='flex pt-6 text-2xl'
-                            >
-                                @{current.username}
-                            </p>
+                            >{current?.name}</p>
                             <p
-                                className='text-icon-color'
-                                style={{ fontSize: "14px" }}
-                            >{getLastActive()}</p>
-                            <p>{current.name}</p>
+                            className='text-icon-color'
+                            >
+                                {getLastActive()}
+                            </p>
+
                         </div>
                         <div className="bg-[#0c1317] py-3 flex flex-col gap-3 pb-16">
                             <div className='flex flex-col gap-2 py-4 px-6 bg-bg-secondary'>
@@ -75,7 +67,7 @@ function MessageProfileContent() {
                             <div className='flex flex-col gap-2 py-2 px-6 bg-bg-secondary min-h-full'>
                                 <div className='flex flex-col gap-4 py-4 bg-bg-secondary items-start min-h-full'>
                                     {
-                                        current.new &&
+                                        current &&
                                         <button
                                             onClick={() => setTglEdit(true)}
                                         >
@@ -88,7 +80,7 @@ function MessageProfileContent() {
                                         Edit
                                     </button>
                                     <button
-                                        onClick={() => removeContact(current.username!, (err) => {
+                                        onClick={() => removeContact(current?.username!, (err) => {
                                             if (!err) {
                                                 removeCurrent();
                                                 handleRouterMessage("back")
@@ -110,13 +102,13 @@ function MessageProfileContent() {
                             </div>
                             <div className='flex flex-col gap-2 py-4 px-6 bg-bg-secondary items-start pb-6 text-danger'>
                                 <button className='flex gap-2 items-center'>
-                                {Icon.ban({
-                                    size: 20,
-                                    color: colors.DANGER
-                                })}
+                                    {Icon.ban({
+                                        size: 20,
+                                        color: colors.DANGER
+                                    })}
                                     Block
                                 </button>
-                                <button  className='flex gap-2 items-center'>
+                                <button className='flex gap-2 items-center'>
                                     {Icon.trash({
                                         size: 20,
                                         color: colors.DANGER

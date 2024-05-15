@@ -33,7 +33,7 @@ function MessageCardListMenu({ msg, setTgl }: { msg: MsgType, setTgl: React.Disp
 
       <button
         onClick={() => {
-          removeMessage(msg.id, msg.info.to!, (err) => {
+          removeMessage(msg.id!, msg.info_msg.to!, (err) => {
             if (!err) {
               setTgl(pv => !pv)
             }

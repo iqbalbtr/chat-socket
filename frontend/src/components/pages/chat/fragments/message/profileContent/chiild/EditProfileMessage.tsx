@@ -1,4 +1,3 @@
-import React from 'react'
 import { colors } from '../../../../../../../constants/color'
 import FieldNewContact from '../../../contact/newContact/FieldNewContact'
 import Icon from '../../../../../../../constants/icons'
@@ -36,11 +35,11 @@ function EditProfileMessage({ back }: { back: () => void }) {
                 <div className="flex flex-col gap-2 px-10 py-4 text-white">
                     <div className="flex flex-col items-start gap-2 py-1">
                         <h2 className="text-sm">First name</h2>
-                        <FieldNewContact />
+                        <FieldNewContact name='fisrt_name' />
                     </div>
                     <div className="flex flex-col items-start gap-2 py-1">
                         <h2 className="text-sm">Last name</h2>
-                        <FieldNewContact />
+                        <FieldNewContact name='last_name' />
                     </div>
                 </div>
 

@@ -23,7 +23,7 @@ function MessageListMenu({ back }: { back: () => void }) {
         Info kontak
       </button>
       <button
-        onClick={() => hanldeButton(() => removeAllMessage(chat.current.username!, true))}
+        onClick={() => hanldeButton(() => removeAllMessage(chat.current?.username!, true))}
       >
         Hapus chat
       </button>
@@ -31,7 +31,7 @@ function MessageListMenu({ back }: { back: () => void }) {
         Arsipkan
         <LockIcon />
       </button>
-      <button onClick={() => hanldeButton(() => removeAllMessage(chat.current.username!, false))}>
+      <button onClick={() => hanldeButton(() => removeAllMessage(chat.current?.username!, false))}>
         Bersihkan
       </button>
     </div>

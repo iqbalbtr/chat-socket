@@ -4,6 +4,7 @@ frontend/pnpm-lock.yaml
 backend/pnpm-lock.yaml
 backend/node_modules
 backend/database/data.db
+pnpm-lock.yaml
 
 *.env
 *dist

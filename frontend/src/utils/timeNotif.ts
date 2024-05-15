@@ -1,4 +1,4 @@
-export function getHourTime(time: number) {
+export function getHourTime(time: Date) {
     const current = new Date(time);
 
     const hour = current.getHours() < 10 ? "0" + current.getHours() : current.getHours()
@@ -21,6 +21,6 @@ export function getTimeNotif(time: number | Date) {
     } else if (now - current.getTime() >= toDay && now - current.getTime() <= toDay * 2) {
         return "kemarin"
     } else {
-        return getHourTime(current.getTime())
+        return getHourTime(current)
     }
 }

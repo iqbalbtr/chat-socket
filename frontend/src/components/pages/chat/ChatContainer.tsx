@@ -1,5 +1,5 @@
 // import React from 'react'
-import { useMessage, MessageRouterType } from '@contexts/chat/MessageContext';
+import {  MessageRouterType } from '@contexts/chat/MessageContext';
 import NothingChat from './NothingChat';
 import ChatListMessage from './fragments/message/mainContent/MessageMainContent';
 import { useChat } from '@contexts/chat/ChatContext';

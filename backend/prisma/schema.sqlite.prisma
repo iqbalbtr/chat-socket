@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id           Int          @id @default(autoincrement())
+  username     String       @unique
+  password     String
+  token        String?      @unique
+  last_active  DateTime?
+  socket_token String?      @unique
+  contact_list ContactList?
+  contact      Contact[]
+
+  @@map("users")
+}
+
+model ContactList {
+  id      Int       @id @default(autoincrement())
+  userId  Int       @unique
+  date    DateTime  @default(now())
+  users   user      @relation(fields: [userId], references: [id])
+  contact Contact[]
+
+  @@map("contact_list")
+}
+
+model Contact {
+  id        Int         @id @default(autoincrement())
+  name      String
+  date      DateTime    @default(now())
+  userId    Int
+  contactId Int
+  contact   ContactList @relation(fields: [contactId], references: [id])
+  user      user        @relation(fields: [userId], references: [id])
+
+  @@map("contacts")
+}

@@ -18,7 +18,7 @@ function MessagePullCard() {
                     // overflowY: "scroll"
                 }}
             >
-                <h5 className='text-green-accent'>{pull?.info.from === username ? "You" : pull?.info.to}</h5>
+                <h5 className='text-green-accent'>{pull?.info_msg.from === username ? "You" : pull?.info_msg.to}</h5>
                 <p className='text-white' style={{ fontSize: 14, marginTop: 2 }}>{pull?.msg}</p>
             </div>
             <button

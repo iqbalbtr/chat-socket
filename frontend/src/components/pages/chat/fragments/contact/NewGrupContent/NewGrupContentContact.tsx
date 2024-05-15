@@ -96,9 +96,9 @@ function NewGrupContentContact() {
 
                             <div className={`flex flex-col gap-4 px-8 ${member.length >= 9 ? "max-h-[30vh]" : "max-h-[55vh]"} overflow-y-scroll`}>
                                 {
-                                    contact.sort((a, b) => a.username.localeCompare(b.username)).map(data => {
+                                    contact.sort((a, b) => a.name.localeCompare(b.name)).map(data => {
                                         const exist = member.find(con => con.username === data.username);
-                                        return !exist && (
+                                        return !exist && data.type === "private" && (
                                             <button onClick={() => handleMember(data)}>
                                                 <ContactGrupCard data={data} />
                                             </button>

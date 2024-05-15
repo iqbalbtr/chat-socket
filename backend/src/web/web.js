@@ -18,6 +18,7 @@ const public_api = require("../routes/public-api");
 const errorMiddleware = require("../middleware/error-middleware");
 const authMiddleware = require("../middleware/auth-middleware");
 const private_api = require("../routes/private-api");
+const { initializeSocket } = require("./socket");
 
 web.use(express.json());
 web.use(express.urlencoded({ extended: true }))
@@ -52,14 +53,11 @@ io.use(authMiddleware.socket);
 web.use(public_api);
 web.use(private_api);
 
-// socket
-io.on("connection", (socket) => {
-    const socketProvider = require("./socket")(socket);
-    socket.on('private-message', socketProvider.on_private);
-    socket.on("group-message", socketProvider.on_group);
-    socket.on("disconnect", socketProvider.disconnect);
-    socket.on("logout", socketProvider.on_logout);
-});
+/**
+ * 
+ * initialisasi socket 
+ */
+initializeSocket(io)
 
 // error handler
 web.use(errorMiddleware);

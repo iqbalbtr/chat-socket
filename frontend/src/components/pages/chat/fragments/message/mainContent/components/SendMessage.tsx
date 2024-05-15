@@ -22,8 +22,8 @@ function SendMessage() {
     function handleSending() {
         return sendMessage({
             input: input,
-            to: current.username!,
-            type: "private",
+            to: current?.username!,
+            type: current?.type!,
             pull: pull?.id ? pull : undefined
         }, (status) => {
             if (status) {

@@ -3,7 +3,6 @@ import { colors } from "../../../../../constants/color"
 import Icon from "../../../../../constants/icons"
 import Cheked from "../cards/Cheked";
 import ContactCard from "../cards/ContactCard";
-import { useState } from "react";
 
 function ModalSelectMessage({ handleTgl }: { handleTgl: () => void }) {
 

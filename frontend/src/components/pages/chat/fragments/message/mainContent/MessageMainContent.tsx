@@ -15,7 +15,7 @@ function MessageMainContent() {
         if (container.current) {
             container.current.scrollTop = container.current.scrollHeight - container.current.clientHeight
         }
-    }, [message, current.username])
+    }, [message, current])
 
     return (
         <div
@@ -35,19 +35,7 @@ function MessageMainContent() {
                     padding: "0 26px"
                 }}
             >
-                {
-                    current.new && (
-                        <div style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            margin: "35px 20px"
-                        }}>
-                            <button style={{
-                                padding: "8px",
-                            }}>Kontak tudak terdaftar</button>
-                        </div>
-                    )
-                }
+                
                 {
                     message.map((data, id) => (
                         <MessageCard key={id} data={data} />

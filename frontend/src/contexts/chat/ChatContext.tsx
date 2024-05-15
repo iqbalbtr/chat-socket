@@ -1,39 +1,62 @@
-import React, { useEffect } from "react";
+import React from "react";
 import MessageContext from "./MessageContext";
 import ContactContext from "./ContactContext";
 import SearchMessageContext from "./message/SearchMessagteContext";
 
-export type ContactType = {
+export type UserContact = {
     id: string;
-    username: string;
     first_name: string;
     last_name?: string;
-    new: boolean;
-    unread: MsgType[];
-    lastMsg?: {
-        msg: string;
-        time: number;
-    };
-    lastActive?: {
-        status: boolean;
-        time: number
-    }
+    bio?: string;
+    username: string;
+    email: string;
 }
-export type MsgType = {
+
+export type LastInfo = {
+    id: string,
+    msg: string,
+    time: Date,
+    unread: number
+}
+
+export type GroupType = {
+    id: number;
+    name: string;
+    bio: string;
+    group_code: string;
+    member:ContactType[];
+};
+
+
+export type ContactType = {
     id: string;
+    name: string;
+    bio: string;
+    username: string;
+    last_info: LastInfo;
+    last_active: string;
+    type: "private" | "group"
+}
+
+export type MsgType = {
+    id?: string;
     msg: string;
-    info: {
-        from: string;
+    time: Date;
+    forward: boolean;
+    info_msg: {
+        id?: string;
         to: string;
+        from: string;
+        respon_read: boolean;
+        sender_read: boolean;
         read: boolean;
-        timestamp: number;
-        type: "private" | "group";
-    },
-    pull: {
-        status: boolean,
-        data?: MsgType 
-    },
-    fwd?: string;
+        type: string;
+    }
+    pull_msg?: {
+        id?: string;
+        status: boolean;
+        msg: string
+    }
 }
 export type localMsgType = {
     username: string;
@@ -41,7 +64,7 @@ export type localMsgType = {
 }
 
 type ContextProps = {
-    current: Partial<ContactType>;
+    current: ContactType | null;
     chatType: ChatType;
     fn: {
         handleCurrent: (curr: ContactType, type: "private" | "group") => void;
@@ -54,7 +77,7 @@ export type ChatRouterType = "search" | "user_info" | "modal_share" | "modal_for
 export type ChatRouterActive = ["search", "user_info", "modal_share", "modal_forward"]
 
 const Context = React.createContext<ContextProps>({
-    current: {},
+    current: null,
     chatType: "idle",
     fn: {
         handleCurrent: () => { },
@@ -73,9 +96,8 @@ function ChatContext({
     children: React.ReactNode
 }) {
 
-    const [current, setCurrent] = React.useState<Partial<ContactType>>({});
+    const [current, setCurrent] = React.useState<ContactType | null>(null);
     const [statusChat, setStatusChat] = React.useState<ChatType>("idle");
-
 
     // handle current user chat
     const handleCurrent = React.useCallback((curr: ContactType, type: "private" | "group") => {
@@ -84,9 +106,12 @@ function ChatContext({
     }, [current, statusChat]);
 
     const removeCurrent = React.useCallback(() => {
-        setCurrent({});
+        setCurrent(null);
         setStatusChat("idle")
     }, [current, statusChat]);
+
+    console.log("currrnt =>", current);
+
 
     return (
         <Context.Provider value={{

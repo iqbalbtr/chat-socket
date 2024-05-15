@@ -1,43 +1,157 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
 }
 
-model user {
-  id           Int          @id @default(autoincrement())
-  username     String       @unique
-  password     String
-  token        String?      @unique
-  last_active  DateTime?
-  socket_token String?      @unique
-  contact_list ContactList?
-  contact      Contact[]
-
-  @@map("users")
+model users {
+    id           String         @id @default(auto()) @map("_id") @db.ObjectId
+    username     String         @unique
+    email        String         @unique
+    password     String
+    last_active  DateTime?
+    create_at    DateTime       @default(now())
+    user_info    user_info?
+    user_auth    user_auth?
+    user_status  user_status[]
+    contact_list contact_list?
+    contact      contact[]
+    group_member group_member[]
 }
 
-model ContactList {
-  id      Int       @id @default(autoincrement())
-  userId  Int       @unique
-  date    DateTime  @default(now())
-  users   user      @relation(fields: [userId], references: [id])
-  contact Contact[]
-
-  @@map("contact_list")
+model user_info {
+    id         String  @id @default(auto()) @map("_id") @db.ObjectId
+    first_name String?
+    last_name  String?
+    bio        String?
+    user_id    String  @unique @db.ObjectId
+    user       users   @relation(fields: [user_id], references: [id])
 }
 
-model Contact {
-  id        Int         @id @default(autoincrement())
-  name      String
-  date      DateTime    @default(now())
-  userId    Int
-  contactId Int
-  contact   ContactList @relation(fields: [contactId], references: [id])
-  user      user        @relation(fields: [userId], references: [id])
+model user_auth {
+    id           String  @id @default(auto()) @map("_id") @db.ObjectId
+    token        String? @unique
+    socket_token String? @unique
+    verify_code  Int?
+    user_id      String  @unique @db.ObjectId
+    user         users   @relation(fields: [user_id], references: [id])
+}
 
-  @@map("contacts")
+model user_status {
+    id          String          @id @default(auto()) @map("_id") @db.ObjectId
+    type        String
+    create_at   DateTime        @default(now())
+    duration    Int?
+    src         String
+    user_id     String          @unique @db.ObjectId
+    user        users           @relation(fields: [user_id], references: [id])
+    status_read status_readed[]
+}
+
+model contact_list {
+    id      String    @id @default(auto()) @map("_id") @db.ObjectId
+    user_id String    @unique @db.ObjectId
+    user    users     @relation(fields: [user_id], references: [id])
+    contact contact[]
+}
+
+model contact {
+    id              String          @id @default(auto()) @map("_id") @db.ObjectId
+    first_name      String
+    last_name       String?
+    user_id         String          @unique @db.ObjectId
+    user            users           @relation(fields: [user_id], references: [id])
+    status_read     status_readed[]
+    contact_list    contact_list?   @relation(fields: [contact_list_id], references: [id])
+    contact_list_id String?         @db.ObjectId
+    unsaved         Boolean         @default(false)
+    last_info       last_info?
+    message         message[]       @relation(fields: [message_id], references: [id])
+    message_id      String[]        @db.ObjectId
+}
+
+model last_info {
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    msg        String
+    time       DateTime @default(now())
+    contact_id String?  @unique @db.ObjectId
+    unread     Int      @default(0)
+    contact    contact? @relation(fields: [contact_id], references: [id])
+    group_id   String?  @unique @db.ObjectId
+    group      group?   @relation(fields: [group_id], references: [id])
+}
+
+model status_readed {
+    id          String       @id @default(auto()) @map("_id") @db.ObjectId
+    contact_id  String       @unique @db.ObjectId
+    status_id   String       @unique @db.ObjectId
+    read_at     DateTime     @default(now())
+    contact     contact?     @relation(fields: [contact_id], references: [id])
+    user_status user_status? @relation(fields: [status_id], references: [id])
+}
+
+model group {
+    id           String         @id @default(auto()) @map("_id") @db.ObjectId
+    group_code   String
+    name         String
+    bio          String?
+    last_info    last_info?
+    group_member group_member[]
+    message      message[]      @relation(fields: [message_id], references: [id])
+    message_id   String[]       @db.ObjectId
+}
+
+model group_member {
+    id       String  @id @default(auto()) @map("_id") @db.ObjectId
+    role     String  @default("member")
+    user_id  String  @unique @db.ObjectId
+    unread   Int     @default(0)
+    user     users   @relation(fields: [user_id], references: [id])
+    group    group?  @relation(fields: [group_id], references: [id])
+    group_id String? @db.ObjectId
+}
+
+// model chat {
+//     id          String    @id @default(auto()) @map("_id") @db.ObjectId
+//     alst_active DateTime?
+//     last_msg    String?
+//     contact_id  String    @unique @db.ObjectId
+//     contact     contact   @relation(fields: [contact_id], references: [id])
+//     message     message[]
+// }
+
+model message {
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
+    msg         String
+    time        DateTime  @default(now())
+    forward     Boolean   @default(false)
+    // chat_id     String    @db.ObjectId
+    // contact     chat      @relation(fields: [chat_id], references: [id])
+    info_msg    info_msg?
+    pull_msg_id String    @unique @db.ObjectId
+    pull_msg    pull_msg  @relation(fields: [pull_msg_id], references: [id])
+    contact     contact[] @relation(fields: [contact_id], references: [id])
+    contact_id  String[]  @db.ObjectId
+    group       group[]   @relation(fields: [group_id], references: [id])
+    group_id    String[]  @db.ObjectId
+}
+
+model info_msg {
+    id          String  @id @default(auto()) @map("_id") @db.ObjectId
+    to          String
+    from        String
+    sender_read Boolean @default(true)
+    respon_read Boolean @default(false)
+    type        String  @default("private")
+    message_id  String  @unique @db.ObjectId
+    message     message @relation(fields: [message_id], references: [id])
+}
+
+model pull_msg {
+    id     String   @id @default(auto()) @map("_id") @db.ObjectId
+    status Boolean  @default(false)
+    msg    message?
 }

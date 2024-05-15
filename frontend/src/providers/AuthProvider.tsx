@@ -19,6 +19,7 @@ type ContextProps = {
 }
 type PayloadProps = {
     username: string;
+    email: string;
     password: string;
 }
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import style from "../../styles/chat.module.css"
 import { useSession } from '@providers/AuthProvider';
-import { MsgType } from '@contexts/chat/ChatContext';
+import { MsgType, useChat } from '@contexts/chat/ChatContext';
 import { colors } from '../../../../../constants/color';
 import MessageCardListMenu from '../listMenu/MessageCardListMenu';
 import ModalTransparent from '@components/core/ModalTransparent';
@@ -19,13 +19,9 @@ function MessageCard({
     const [tglList, setTglList] = useState(false);
     const { select, fn: { handleSelect } } = useSelectMessage();
     const { user } = useSession();
-    const current: string = "private";
+    const { current } = useChat();
 
-    function getTimeMsg(date: number) {
-        const now = new Date(date);
 
-        return `${now.getHours()}:${now.getMinutes()}`
-    }
 
     const getExistForward = select.data.find(msg => msg.id === data.id) ? true : false;
 
@@ -35,14 +31,14 @@ function MessageCard({
             onClick={() => select.status ? handleSelect(data) : null}
             className={`w-full relative flex my-2 text-white ${getExistForward && "bg-bg-primary"} ${select.data.length >= 1 && "cursor-pointer"}`}
             style={{
-                justifyContent: data.info.from === user.username ? "flex-end" : "flex-start"
+                justifyContent: data.info_msg.from === user.username ? "flex-end" : "flex-start"
             }}
         >
 
 
             {
                 //  Action select.data if message exist on select.data array and msg from same xurrent user 
-                select.status && data.info.from !== user.username && (
+                select.status && data.info_msg.from !== user.username && (
                     <Cheked value={getExistForward} />
                 )
                 // Action select.data if message exist on select.data array
@@ -50,36 +46,37 @@ function MessageCard({
 
 
 
-            {/* {
-                data.info.from !== user.username && current === "group" &&
-                <span className={style.message_card_profile}>{data.info.from.charAt(0).toUpperCase()}</span>
-            } */}
+            {
+                data.info_msg.from !== user.username && current?.type === "group" &&
+                <span className="w-[40px] h-[40px] mt-3 rounded-full flex justify-center items-center mr-3 bg-gray-500" >{data.info_msg.from.charAt(0).toUpperCase()}</span>
+            }
 
 
 
             {/* Outer container message start */}
             <div>
-                {/* {
-                    current === "group" && (
-                        <h5
-                            style={{
-                                textAlign: data.info.from === user.username ? "right" : 'left'
-                            }}
-                        >
-                            {data.info.from === user.username ? "You" : data.info.from}
-                        </h5>
-                    )
-                } */}
 
 
                 {/* Message Body Start */}
                 <div
-                    className={`${data.info.from === user.username ? "bg-green-primary" : "bg-hover-color"} flex flex-col py-1 px-1 max-w-[36rem] group `}
+                    className={`${data.info_msg.from === user.username ? "bg-green-primary" : "bg-hover-color"} flex flex-col py-1 px-1 max-w-[36rem] group `}
                     style={{
                         position: "relative",
-                        borderRadius: user.username === data.info.from ? "12px 12px 0" : "12px 12px 12px 0px"
+                        borderRadius: user.username === data.info_msg.from ? "8px 8px 0" : "8px 8px 8px 0px"
                     }}
                 >
+                     {
+                    current?.type === "group" && data.info_msg.from !== user.username && (
+                        <h5
+                            style={{
+                                textAlign: data.info_msg.from === user.username ? "right" : 'left'
+                            }}
+                            className='ml-1 text-icon-color text-sm'
+                        >
+                            {data.info_msg.from === user.username ? "You" : data.info_msg.from}
+                        </h5>
+                    )
+                }
 
 
                     {/* Toggle list message menu button start */}
@@ -87,7 +84,7 @@ function MessageCard({
                         select.data.length === 0 && (
                             <button
                                 onClick={() => setTglList(pv => !pv)}
-                                className={`absolute right-0 shadow-lg top-0 hidden rounded-full ${user.username === data.info.from ? "bg-green-primary" : "bg-hover-color"} hidden group-hover:flex`}>
+                                className={`absolute right-0 shadow-lg top-0 hidden rounded-full ${user.username === data.info_msg.from ? "bg-green-primary" : "bg-hover-color"} hidden group-hover:flex`}>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
@@ -109,7 +106,7 @@ function MessageCard({
                     {/* Modal List menu message start*/}
                     {
                         tglList && (
-                            <div className={`absolute ${data.info.from !== user.username ? "left-full ml-2" : "right-full mr-2"}`}>
+                            <div className={`absolute ${data.info_msg.from !== user.username ? "left-full ml-2" : "right-full mr-2"}`}>
                                 <div className='fixed top-0 z-10 left-0 min-h-screen w-full' onClick={() => setTglList(pv => !pv)}></div>
                                 <MessageCardListMenu
                                     msg={data}
@@ -125,7 +122,7 @@ function MessageCard({
 
 
                     {/* Message Reply Cards start */}
-                    {
+                    {/* {
                         data.pull.status && (
                             <div style={{
                                 padding: 6,
@@ -141,12 +138,12 @@ function MessageCard({
                                     style={{ marginBottom: 4 }}
                                     className='text-green-accent'
                                 >
-                                    {data.pull.data?.info.from === user.username ? "Kamu" : data.pull.data?.info.from}
+                                    {data.pull.data?.info_msg.from === user.username ? "Kamu" : data.pull.data?.info_msg.from}
                                 </h6>
                                 <p>{data.pull.data?.msg}</p>
                             </div>
                         )
-                    }
+                    } */}
                     {/* Message Reply Cards End */}
 
 
@@ -156,11 +153,11 @@ function MessageCard({
                         <p className='px-1 w-full pb-2'>{data.msg}</p>
                         <span
                             style={{
-                                textAlign: data.info.from === user.username ? "right" : "left"
+                                textAlign: data.info_msg.from === user.username ? "right" : "left"
                             }}
                             className='text-icon-color text-[12px] w-fit px-1'
                         >
-                            {getHourTime(data.info.timestamp)}
+                            {getHourTime(data.time)}
                         </span>
                     </div>
                     {/* Message content */}
@@ -177,7 +174,7 @@ function MessageCard({
 
             {
                 //  Action select.data if message exist on select.data array and msg from not equal xurrent user 
-                select.status && data.info.from === user.username && (
+                select.status && data.info_msg.from === user.username && (
                     <Cheked value={getExistForward} />
                 )
                 //  Action select.data if message exist on select.data array 

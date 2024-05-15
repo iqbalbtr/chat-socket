@@ -1,6 +1,5 @@
 import React from "react";
 import ContactCard from "../../../cards/ContactCard";
-import { useMessage } from "@contexts/chat/MessageContext";
 import { useContact } from "@contexts/chat/ContactContext";
 import { useSelectMessage } from "@contexts/chat/message/SelectMessageContext";
 

@@ -1,105 +1,8 @@
-const prisma = require("../../prisma/prisma");
-const ResponseError = require("../errors/error-response");
+const prisma = require("../../prisma/prisma")
 
 module.exports = {
-    create: async (contact_list_id, req) => {
-        const query = await prisma.users.findFirst({
-            where: {
-                username: req.username
-            }
-        });
+    get: async (req) => {
 
-        if (!query) throw new ResponseError(404, "User is not found");
-
-        const exist = await prisma.contact.count({
-            where: {
-                contact_list_id: contact_list_id,
-                user: {
-                    username: req.username
-                }
-            }
-        });
-
-        if (exist >= 1) throw new ResponseError(404, "Contatc already exist");
-   
-        return await prisma.contact.create({
-            data: {
-                contact_list_id: contact_list_id,
-                first_name: req.first_name,
-                last_name: req.last_name,
-                user_id: query.id,
-                last_info: {
-                    create: {
-                        msg: ""
-                    }
-                }
-            }
-        })
-    },
-    remove: async (contactId) => {
-        const query = await prisma.contact.findFirst({
-            where: {
-                id: +contactId
-            }
-        })
-        if (!query) throw new ResponseError(404, "Contact is not found");
-        const result = await prisma.contact.delete({
-            where: {
-                id: +contactId
-            },
-            select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                user: {
-                    select: {
-                        username: true
-                    }
-                }
-            }
-        })
-
-        return {
-            id: result.id,
-            name: result.name,
-            username: result.user.username
-        }
-    },
-    update: async (contactId, req) => {
-        const query = await prisma.contact.findFirst({
-            where: {
-                id: +contactId
-            }
-        })
-
-        if (!query) throw new ResponseError(404, "Contact is not found")
-
-        const result = await prisma.contact.update({
-            where: {
-                id: +contactId
-            },
-            data: {
-                first_name: req.first_name,
-                last_name: req.last_name,
-            },
-            select: {
-                id: true,
-                name: true,
-                user: {
-                    select: {
-                        username: true
-                    }
-                }
-            }
-        })
-
-        return {
-            id: result.id,
-            name: result.name,
-            username: result.user.username,
-        }
-    },
-    list: async (req) => {
         let all = await prisma.users.findUnique({
             where: {
                 id: req,
@@ -133,7 +36,6 @@ module.exports = {
                                                 id: true,
                                                 username: true,
                                                 email: true,
-                                                last_active: true,
                                                 user_info: {
                                                     select: {
                                                         first_name: true,
@@ -162,7 +64,6 @@ module.exports = {
                                 user: {
                                     select: {
                                         username: true,
-                                        last_active: true,
                                         email: true,
                                         user_info: {
                                             select: {
@@ -194,10 +95,9 @@ module.exports = {
                             id: member.id,
                             role: member.role,
                             username: member.user.username,
-                            first_name: member.user.user_info.first_name || member.user.username,
+                            first_name: member.user.user_info.first_name,
                             last_name: member.user.user_info.last_name,
-                            bio: member.user.user_info.bio,
-                            last_active: member.user.last_active
+                            bio: member.user.user_info.bio
                         }))
                 }))
         ] : []
@@ -212,7 +112,6 @@ module.exports = {
                     bio: foo.user.user_info.bio,
                     username: foo.user.username,
                     last_info: foo.last_info,
-                    last_active: foo.user.last_active,
                     type: "private"
                 })),
             ...(
@@ -255,3 +154,8 @@ module.exports = {
         }
     }
 }
+
+/*
+    Pyaload response
+    
+*/

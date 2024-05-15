@@ -1,97 +1,74 @@
+const chatEvent = require("../events/chat-event")
+const messageEvent = require("../events/message-event")
+const userEvent = require("../events/user-event")
+const groupService = require("../services/group-service");
+const { updateActiveUser } = require("../utils/socket/updateActiveUser");
+
 let client_active = {
     count: 0,
     users: [],
 };
 
-module.exports = (socket) => {
+async function initializeSocket(io) {
 
-    const current_user = socket.user;
-    socket.join(current_user.username);
+    /**
+     * 
+     * Connect on websocket
+     */
+    io.on("connection", async (socket) => {
 
-    const existing_user = client_active.users.find(client => client.username === current_user.username);
-    if (!existing_user) {
-        client_active = {
-            count: client_active.count + 1,
-            users: [
-                ...client_active.users,
-                {
-                    active: true,
-                    ...current_user
-                }
-            ]
-        }
-    } else {
-        client_active = {
-            ...client_active,
-            users: client_active.users.map(client => {
-                if (client.username === current_user.username) {
-                    return {
-                        ...client,
-                        active: true
-                    }
-                } else {
-                    return client
-                }
+        /**
+         * Current user active
+         */
+        const current_user = socket.user;
+
+        /**
+         * 
+         * Join user for her room 
+         * and group room
+         */
+        socket.join(current_user.username);
+        (await groupService.get(socket.user.id)).
+            forEach(foo => {
+                // group join
+                socket.join(foo.group.group_code);
             })
-        }
-    }
-    socket.broadcast.emit("user-status", client_active.users.filter(user => user.active));
 
-    console.log("User active => ", client_active.users.map((client) => ({ username: client.username, active: client.active })));
-    console.log("User count => ", client_active.count)
 
-    return {
-        on_private: async (msg) => {
-            const find = client_active.users.find(user => user.username === msg.info.to);
-            console.log({find});
-            if(!find || !find.active){
-                client_active.users.map(user => {
-                    if(user.username === msg.info.to){
-                        return {
-                            ...user,
-                            pendingMsg: [
-                                ...user.pendingMsg,
-                                msg
-                            ]
-                        }
-                    } else {
-                        return user
-                    }
-                })
-            } else {
-                socket.to(msg.info.to).emit("private-message", msg);
-            }
-            console.log(client_active.users);
-        },
-        disconnect: async () => {
-            client_active = {
-                ...client_active,
-                users: client_active.users.map(client => {
-                    if (client.username === current_user.username) {
-                        return {
-                            ...current_user,
-                            active: false
-                        }
-                    } else {
-                        return client
-                    }
-                })
-            }
+        /** 
+         * 
+         * Update store active user
+        */
+        client_active = updateActiveUser(client_active, current_user);
 
-            socket.broadcast.emit("user-status", client_active.users.filter(user => !user.active));
-            console.log(`${current_user.username} has been disconnect`);
-            console.log("disconnect =>", client_active.users.map((client) => ({ username: client.username, active: client.active })));
-        },
-        on_group: async (name, msg) => {
-            socket.to(name).emit("group-message", msg);
-        },
-        on_logout: async (value) => {
-            client_active = {
-                count: client_active.count - 1,
-                users: client_active.users.filter(client => client.username !== value)
-            }
-            console.log("logout => ", client_active.users.map((client) => ({ username: client.username, active: client.active })));
-        }
-    }
+        /**
+         * 
+         * Emit user status
+         */
+        userEvent.active(current_user, client_active, socket);
+
+
+        /**
+         * 
+         * Event handler
+         */
+
+        socket.on("private-message", msg => messageEvent.private(msg, current_user, socket));
+        socket.on("group-message", (msg, code) => messageEvent.group(msg, code, current_user, socket));
+        socket.on("readed-msg", msg => messageEvent.readed(msg, current_user));
+
+        socket.on("get-chat", req => chatEvent.getChat(req, current_user, socket))
+
+        socket.on("log-out", req => userEvent.logout(client_active, req));
+        socket.on("disconnect", req => userEvent.disconnect(client_active, current_user, socket));
+
+
+        // Logging
+        console.log("User active => ", client_active.users.map((client) => ({ username: client.username, active: client.active })));
+        console.log("User count => ", client_active.count)
+    })
 }
 
+module.exports = {
+    initializeSocket
+}
