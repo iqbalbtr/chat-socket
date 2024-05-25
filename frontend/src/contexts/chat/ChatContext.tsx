@@ -2,6 +2,7 @@ import React from "react";
 import MessageContext from "./MessageContext";
 import ContactContext from "./ContactContext";
 import SearchMessageContext from "./message/SearchMessagteContext";
+import { useSocket } from "@providers/SocketProvider";
 
 export type UserContact = {
     id: string;
@@ -24,9 +25,8 @@ export type GroupType = {
     name: string;
     bio: string;
     group_code: string;
-    member:ContactType[];
+    member: ContactType[];
 };
-
 
 export type ContactType = {
     id: string;
@@ -35,6 +35,7 @@ export type ContactType = {
     username: string;
     last_info: LastInfo;
     last_active: string;
+    unsaved: boolean;
     type: "private" | "group"
 }
 
@@ -50,17 +51,24 @@ export type MsgType = {
         respon_read: boolean;
         sender_read: boolean;
         read: boolean;
-        type: string;
-    }
+        type: "group" | "private" ;
+    },
+    pull_msg_id?: string;
     pull_msg?: {
-        id?: string;
-        status: boolean;
-        msg: string
+        id: string;
+        msg: string;
+        time: Date;
+        forward: boolean;
+        info_msg: {
+            id?: string;
+            to: string;
+            from: string;
+            respon_read: boolean;
+            sender_read: boolean;
+            read: boolean;
+            type: "group" | "private" ;
+        }
     }
-}
-export type localMsgType = {
-    username: string;
-    data: MsgType[];
 }
 
 type ContextProps = {
@@ -110,7 +118,8 @@ function ChatContext({
         setStatusChat("idle")
     }, [current, statusChat]);
 
-    console.log("currrnt =>", current);
+
+    console.log(current);
 
 
     return (
@@ -134,3 +143,11 @@ function ChatContext({
 }
 
 export default ChatContext
+
+function Loading() {
+    return (
+        <div className=" flex justify-center items-center min-h-screen w-full fixed top-0 left-0 bg-bg-primary">
+            <span>Loading</span>
+        </div>
+    )
+}

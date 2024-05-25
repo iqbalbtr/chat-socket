@@ -20,6 +20,15 @@ export default {
         "border-color": "#212c33",
         "hover-color": "#2a3942"
       },
+      animation: {
+        "progress-bar": "progress "
+      },
+      keyframes: {
+        "progress": {
+          "0%": {width: "0%"},
+          "100%": {width: "100%"}
+        }
+      }
     },
   },
   plugins: [],

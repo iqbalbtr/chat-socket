@@ -1,11 +1,13 @@
 const prisma = require("../../prisma/prisma");
 
 module.exports = {
-    logout: async(client_active, value) => {
+    logout: async(client_active, value, callback) => {
         client_active = {
             count: client_active.count - 1,
             users: client_active.users.filter(client => client.username !== value)
         }
+
+        callback(client_active)
         console.log("logout => ", client_active.users.map((client) => ({ username: client.username, active: client.active })));
     },
     disconnect: async (client_active, current, socket) => {

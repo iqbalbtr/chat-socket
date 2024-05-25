@@ -19,6 +19,7 @@ const errorMiddleware = require("../middleware/error-middleware");
 const authMiddleware = require("../middleware/auth-middleware");
 const private_api = require("../routes/private-api");
 const { initializeSocket } = require("./socket");
+const { initilaizeScheduler } = require("./scheduler");
 
 web.use(express.json());
 web.use(express.urlencoded({ extended: true }))
@@ -34,6 +35,7 @@ web.use(cors({
     
 }));
 
+web.use(express.static("public"));
 
 const io = new Server(server, {
     cors: {
@@ -57,7 +59,13 @@ web.use(private_api);
  * 
  * initialisasi socket 
  */
-initializeSocket(io)
+initializeSocket(io);
+
+/**
+ * 
+ * initialisasi scheduler for maintaining server
+ */
+initilaizeScheduler();
 
 // error handler
 web.use(errorMiddleware);

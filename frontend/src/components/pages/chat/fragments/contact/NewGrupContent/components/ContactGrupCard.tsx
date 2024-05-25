@@ -11,8 +11,8 @@ function ContactGrupCard({ data }: { data: ContactType }) {
                 {data.name.charAt(0).toUpperCase()}
             </span>
             <div className='flex pl-2 flex-col items-start gap-1 w-full border-t-[1px] border-hover-color pt-2'>
-                <h3>{data.name}</h3>
-                <p className='text-sm text-left text-icon-color line-clamp-1'>lesum laboriosam, lorem44 doloremque voluptatibus consectetur!</p>
+                <h3>{data.name.split("%2f").join(" ")}</h3>
+                <p className='text-sm text-left text-icon-color line-clamp-1'>{data.bio}</p>
             </div>
         </div>
     )

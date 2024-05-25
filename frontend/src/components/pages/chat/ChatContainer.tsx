@@ -9,6 +9,7 @@ import MessageSearchContent from './fragments/message/searchContent/MessageSeacr
 import ModalRouteHandler from './fragments/ModalRouteHandler';
 import ShareContact from './fragments/message/profileContent/chiild/ShareContact';
 import { useRouterMessage } from '@contexts/chat/message/RouterMessageContext';
+import MessageForwadsModal from './fragments/message/mainContent/components/MessageForwadsModal';
 
 
 
@@ -48,7 +49,7 @@ function ChatContainer() {
           {
             name: "forward",
             label: "Teruskan pesan",
-            children: ""
+            children: <MessageForwadsModal />
           },
           {
             name: "share",

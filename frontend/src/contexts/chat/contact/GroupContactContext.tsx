@@ -71,10 +71,7 @@ export default function GroupContactContext({ children }: { children: ReactNode 
             callback(error.message);
         }
 
-    }, [group]);
-
-    console.log("Group =>", group);
-    
+    }, [group]);    
 
     return (
         <Context.Provider

@@ -18,7 +18,7 @@ function ContactCard({
                 className="flex w-full"
             >
                 <span
-                    className="w-[45px] h-[45px] aspect-square rounded-full bg-gray-500 flex items-center justify-center text-xl"
+                    className="w-[55px] aspect-square rounded-full bg-gray-500 flex items-center justify-center text-xl"
                 >
                     {data.name.charAt(0)}
                 </span>
@@ -27,7 +27,7 @@ function ContactCard({
                 >
                     <div
                     >
-                        <h3 className="font-semibold">{data.name} </h3>
+                        <h3 className="font-semibold">{data.name.replace("%2f", " ")} </h3>
                         <div>
                             <p
                                 className="text-icon-color"

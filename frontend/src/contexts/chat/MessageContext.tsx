@@ -1,18 +1,19 @@
 import { useSession } from '@providers/AuthProvider';
 import { useSocket } from '@providers/SocketProvider';
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { MsgType, useChat } from './ChatContext';
 import { useContact } from './ContactContext';
 import RouterMessageContext from './message/RouterMessageContext';
 import SelectMessageContext from './message/SelectMessageContext';
 import PullMessageContext from './message/PullMessage.Context';
 import SearchContactContext from './contact/SearchContactContext';
+import SendFileContext from './message/SendFileContext';
 
 
 type ContextType = {
     message: MsgType[],
     fn: {
-        sendMessage: ({ input, to, type, fwd }: { input: string, to: string, type: "group" | "private", pull?: MsgType, fwd?: string }, callback: (status: boolean, msg?: MsgType) => void) => void;
+        sendMessage: ({ input, to, type, fwd }: { input: string, to: string, type: "group" | "private", pull?: string, fwd?: boolean }, callback: (status: boolean, msg?: MsgType) => void) => void;
         removeMessage: (id: string, username: string, callback: (err: string, result?: MsgType) => void) => void;
         removeAllMessage: (username: string, local: boolean) => void;
     }
@@ -40,26 +41,26 @@ export function useMessage() {
 function MessageContext({ children }: { children: React.ReactNode }) {
 
     const [message, setMessage] = React.useState<MsgType[]>([]);
-    const { user: { username, id } } = useSession();
-    const { current, fn: { removeCurrent } } = useChat();
-    const { contact } = useContact();
+    const { user: { username } } = useSession();
+    const { current } = useChat();
     const { socket } = useSocket();
     const { fn: { storeLastInfoUser, storeLastInfoCurrent, storeLastInfoGroup } } = useContact();
 
-    const storeMessage = React.useCallback((msg: MsgType, group?: string) => {
+    const storeMessage = useCallback((msg: MsgType, group?: string) => {
 
         if (msg.info_msg.type === "private") {
             if (msg.info_msg.from === current?.username) {
-                socket.emit("readed-msg", { current: current.id, type: current.type })
+
+                socket?.emit("readed-msg", { current: current.id, type: current.type })
                 storeLastInfoUser(msg, false)
                 setMessage(pv => [...pv, msg]);
             } else {
                 storeLastInfoUser(msg, true)
             }
-        } else {        
-            if(!group) return    
+        } else {
+            if (!group) return
             if (group === current?.username) {
-                socket.emit("readed-msg", { current: current.id, type: current.type })
+                socket?.emit("readed-msg", { current: current.id, type: current.type })
                 storeLastInfoGroup(msg, false, group)
                 setMessage(pv => [...pv, msg]);
             } else {
@@ -67,7 +68,7 @@ function MessageContext({ children }: { children: React.ReactNode }) {
             }
         }
 
-    }, [message, current, contact])
+    }, [current, socket])
 
     const sendMessage = React.useCallback(({
         input,
@@ -79,17 +80,20 @@ function MessageContext({ children }: { children: React.ReactNode }) {
         input: string,
         to: string,
         type: "group" | "private",
-        pull?: MsgType,
-        fwd?: string,
+        pull?: string,
+        fwd?: boolean,
     }, callback: (status: boolean, msg?: MsgType) => void) => {
 
         // if user isn't pick contact
         if (!current) return callback(false);
+        if (!input) return callback(false);
+        if (!socket) return callback(false)
+
 
         const payload: MsgType = {
             msg: input,
             time: new Date(),
-            forward: false,
+            forward: fwd ? true : false,
             info_msg: {
                 to: to,
                 from: username!,
@@ -97,17 +101,22 @@ function MessageContext({ children }: { children: React.ReactNode }) {
                 sender_read: true,
                 read: true,
                 type: type,
-            }
-
+            },
+            pull_msg_id: pull
         }
 
         // send message using socket
         if (type === "private") {
             socket.emit("private-message", payload);
         } else {
-            socket.emit("group-message", current.username, payload);
+            socket.emit("group-message", payload.info_msg.to, payload);
         }
         console.log("sending Msg => ", payload);
+
+
+        if (fwd) {
+            socket?.emit("readed-msg", { current: current.id, type: current.type })
+        }
 
         callback(true, payload);
     }, [message, current]);
@@ -144,16 +153,16 @@ function MessageContext({ children }: { children: React.ReactNode }) {
     React.useEffect(() => {
         if (current) {
             setMessage([])
-            socket.emit("get-chat", { username: current.username, type: current.type });
+            socket?.emit("get-chat", { username: current.username, type: current.type });
             if (current.last_info.unread >= 1) {
-                socket.emit("readed-msg", { current: current.id, type: current.type })
+                socket?.emit("readed-msg", { current: current.id, type: current.type })
             }
         }
-    }, [current])
+    }, [current, socket])
 
     React.useEffect(() => {
 
-        if (username) {
+        if (username && socket) {
             socket.on("private-message", (msg: MsgType) => {
                 console.log("msg receive=>", msg);
                 storeMessage(msg);
@@ -164,11 +173,13 @@ function MessageContext({ children }: { children: React.ReactNode }) {
             })
             socket.on("result-sending-msg", (msg: MsgType) => {
                 console.log("result-sending-msg =>", msg);
-                setMessage(pv => [...pv, msg])
+                if (msg.info_msg.to === current?.username) {
+                    setMessage(pv => [...pv, msg])
+                }
                 storeLastInfoCurrent(msg)
             })
             socket.on("get-chat", (chat: MsgType[]) => {
-                console.log("get chat =>", chat);
+                // console.log("get chat =>", chat);
                 setMessage(chat)
             })
             socket.on("group-message", (msg: MsgType, group: string) => {
@@ -177,23 +188,15 @@ function MessageContext({ children }: { children: React.ReactNode }) {
             })
         }
         return () => {
-            socket.off("private-message");
-            socket.off("result-sending-msg");
-            socket.off("resend-msg");
-            socket.off("get-chat");
-            socket.off("group-message");
-        }
-    }, [username, socket, current, message])
-
-    let onceResend = false
-    useEffect(() => {
-        if (username) {
-            if (!onceResend) {
-                socket.emit("resend-msg", username);
-                onceResend = true
+            if (socket) {
+                socket.off("private-message");
+                socket.off("result-sending-msg");
+                socket.off("resend-msg");
+                socket.off("get-chat");
+                socket.off("group-message");
             }
         }
-    }, [username])
+    }, [username, socket, current])
 
     return (
         <Context.Provider value={{
@@ -208,7 +211,9 @@ function MessageContext({ children }: { children: React.ReactNode }) {
                 <SelectMessageContext>
                     <PullMessageContext>
                         <SearchContactContext>
-                            {children}
+                            <SendFileContext>
+                                {children}
+                            </SendFileContext>
                         </SearchContactContext>
                     </PullMessageContext>
                 </SelectMessageContext>

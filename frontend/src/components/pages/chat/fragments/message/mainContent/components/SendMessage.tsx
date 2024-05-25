@@ -24,7 +24,7 @@ function SendMessage() {
             input: input,
             to: current?.username!,
             type: current?.type!,
-            pull: pull?.id ? pull : undefined
+            pull: pull?.id ? pull.id : undefined
         }, (status) => {
             if (status) {
                 setInput("");

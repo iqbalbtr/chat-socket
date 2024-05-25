@@ -68,7 +68,15 @@ module.exports = {
                 socket_token: true,
                 user: {
                     select:{
-                        username: true
+                        username: true,
+                        id: true,
+                        email: true,
+                        user_info: {
+                            select: {
+                                first_name: true,
+                                last_name: true
+                            }
+                        }
                     }
                 }
             }

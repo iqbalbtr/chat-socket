@@ -5,14 +5,14 @@ import { Socket } from "socket.io-client";
 import { useSession } from "./AuthProvider";
 
 type SocketContext = {
-    socket: Socket,
+    socket: Socket | null,
     connect: () => void;
     status: boolean;
     disconnect: () => void;
 }
 
 const SocketContext = React.createContext<SocketContext>({
-    socket: socket,
+    socket: null,
     connect: () => { },
     status: false,
     disconnect: () => { }
@@ -27,14 +27,32 @@ function SocketProvider(props: { children: React.ReactNode }) {
     const { children } = props;
     const [status, setStatus] = useState(false);
     const auth = useSession();
+    const [sc, setSc] = useState<Socket | null>(null);
 
     const connect = React.useCallback(() => {
-        socket.auth = {
-            username: auth.user.username
+        if (auth) {
+            console.log("connecting to server");
+            socket.auth = {
+                username: auth.user.username
+            }
+
+            socket.once("connect", () => {
+                console.log("your status connect", socket.connected);
+                setSc(socket);
+                setStatus(true);
+            })
+            
+            socket.once("disconnect", () => {
+                setStatus(false);
+                console.log("your status disconnect", socket.disconnected);
+            })
+
+            return () => {
+                socket.off("connect")
+                socket.off("disconnect")
+            }
         }
-        socket.connect();
-        setStatus(true);
-    }, [status, auth.user])
+    }, [status, auth.user, socket])
 
     const disconnect = React.useCallback(() => {
         socket.emit("logout", {
@@ -42,33 +60,28 @@ function SocketProvider(props: { children: React.ReactNode }) {
         });
         setStatus(false);
     }, [status, auth.user]);
-    
+
     useEffect(() => {
+
+        /** 
+        *
+        * handler Socket connect if user is Autehticated
+        * Store & update status socket 
+        */
         if (status) return;
-        if (auth.status === "Authorized") {            
-            connect();
+
+        if (auth.status === "Authorized") {
+            if(auth.user.username){
+                connect();
+            }
         }
+        
     }, [auth.user, auth.status])
-
-    React.useEffect(() => {
-        socket.on("connect", () => {
-            console.log("your status", socket.connected);
-        })
-
-        socket.on("disconnect", () => {
-            console.log("your status", socket.disconnected);
-        })
-
-        return () => {
-            socket.off("connect")
-            socket.off("disconnect")
-        }
-    },[])
 
     return (
         <SocketContext.Provider
             value={{
-                socket,
+                socket: sc,
                 connect,
                 status,
                 disconnect

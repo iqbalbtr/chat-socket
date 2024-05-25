@@ -3,6 +3,7 @@ import React from "react"
 import { useLocation, useNavigate } from "react-router-dom";
 import { socket } from "../socket";
 
+
 type StatusProps = "Authorized" | "Unauthrorized" | "loading";
 type UserProps = {
     id: string;
@@ -15,12 +16,14 @@ type ContextProps = {
     status: Partial<StatusProps>;
     login: (payload: PayloadProps) => Promise<void>;
     logout: () => Promise<void>;
-    register: (payload: {username: string, email: string, password: string}, callback: (err: string) => void) => Promise<void>;
+    register: (payload: { username: string, email: string, password: string }, callback: (err: string) => void) => Promise<void>;
 }
 type PayloadProps = {
     username: string;
     email: string;
     password: string;
+    first_name: string;
+    last_name: string;
 }
 
 const AuthContext = React.createContext<ContextProps>({
@@ -28,7 +31,7 @@ const AuthContext = React.createContext<ContextProps>({
     status: "Unauthrorized",
     login: async () => { },
     logout: async () => { },
-    register: async () => {}
+    register: async () => { }
 });
 
 export function useSession() {
@@ -68,10 +71,12 @@ function AuthProvider({
             setError(res.error.message);
             throw new Error(res.error);
         } else {
-            setStatus("Authorized");
-            setUser(res.result.user);
-            socket.connect();
-            socket.emit("login", user.username)
+            
+            /*
+            * Reload for connectiong socket to server
+            *
+            */
+            window.location.reload()
         }
     }, [user, status])
 
@@ -94,7 +99,7 @@ function AuthProvider({
             setUser({});
             setStatus("Unauthrorized");
             navigate("/");
-            socket.emit("logout", user.username)
+            socket.emit("log-out", user.username)
             socket.disconnect();
         }
     }, [user, status]);
@@ -175,6 +180,11 @@ function AuthProvider({
         }
 
     }, [pathname, status])
+
+    React.useEffect(() => {
+        socket.connect();
+        socket.emit("login", user.username)
+    }, [user.username, socket])
 
 
     return (

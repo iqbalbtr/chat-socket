@@ -11,11 +11,16 @@ module.exports = {
         const userIsExist = await userService.getByUsername(msg.info_msg.to);
 
         if (userIsExist) {
-            await messageService.private(msg, current, (err, result) => {
+            await messageService.private(msg, current, (err, result, newContact) => {
                 if (!err) {
 
+                    if(newContact){
+                        socket.to(msg.info_msg.to).emit("new-contact", newContact);
+                    }
+                    
                     // sending message to responder
                     socket.to(msg.info_msg.to).emit("private-message", result);
+
 
                     // sending result message to sender
                     socket.emit("result-sending-msg", result);

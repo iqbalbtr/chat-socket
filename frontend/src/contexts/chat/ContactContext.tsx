@@ -5,14 +5,16 @@ import { useSocket } from "@providers/SocketProvider";
 import RouterContactContext from "./contact/RouterContactContext";
 import SearchContactContext from "./contact/SearchContactContext";
 import GroupContactContext from "./contact/GroupContactContext";
+import StatusContentContact from "./contact/StatusContactContext";
+import privateApi from "@libs/axios";
 
 type ContextType = {
     contact: ContactType[];
     error: string;
     fn: {
-        addContact: (payload: { username: string, last_name: string, first_name: string }, callback: (err: string, result?: ContactType) => void) => Promise<void>,
-        removeContact: (username: string, callback: (err: string, result?: ContactType) => void) => Promise<void>;
-        updateContact: (payload: { id: number, name: string }, callback: (err: string) => void) => Promise<void>;
+        addContact: (payload: { username: string, last_name: string, first_name: string }, callback: (err: string, result?: string) => void) => Promise<void>,
+        removeContact: (id: string, callback: (err: string, result?: string) => void) => Promise<void>;
+        updateContact: (payload: { id: string, firstname: string, lastname: string }, callback: (err: string) => void) => Promise<void>;
         storeLastInfoUser: (msg: MsgType, unread: boolean) => void;
         storeLastInfoGroup: (msg: MsgType, unread: boolean, group: string) => void;
         storeLastInfoCurrent: (msg: MsgType) => void;
@@ -27,8 +29,8 @@ const Context = React.createContext<ContextType>({
         addContact: async () => { },
         removeContact: async () => { },
         updateContact: async () => { },
-        storeLastInfoUser: () => {},
-        storeLastInfoGroup: () => {},
+        storeLastInfoUser: () => { },
+        storeLastInfoGroup: () => { },
         storeLastInfoCurrent: () => { },
         getGroup: () => null
     }
@@ -76,57 +78,58 @@ function ContactContext({ children }: { children: React.ReactNode }) {
 
     }, [list, status])
 
-    const addContact = React.useCallback(async (payload: { username: string, first_name: string, last_name: string }, callback: (err: string, result?: ContactType) => void) => {
+    const addContact = React.useCallback(async (payload: { username: string, first_name: string, last_name: string }, cb: (err: string, result?: string) => void) => {
         setStatus("loading");
-        const response = await fetch("http://localhost:8080/api/contacts", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload),
-            credentials: "include"
-        });
+        try {
+            const req = await privateApi.post("/api/contacts", payload);
 
-        const res = await response.json();
-
-        if (!response.ok) {
-            setStatus("error");
-            setError(res.error.message);
-            callback(res.error, undefined);
-        } else {
-            setStatus("success");
-            callback("", res.result);
+            if (req.status === 200) {
+                setList(pv => [...pv, req.data.result])
+                cb("", "Success")
+            }
+        } catch (error: any) {
+            setStatus('error')
+            cb(error.message)
         }
     }, [status, list])
 
-    const removeContact = React.useCallback(async (username: string, callback: (err: string, result?: ContactType) => void) => {
-
-
+    const removeContact = React.useCallback(async (id: string, cb: (err: string, result?: string) => void) => {
+        setStatus("loading");
+        try {
+            const req = await privateApi.delete(`/api/contacts/${id}`);
+            if (req.status === 200) {
+                setList(pv => pv.filter(foo => foo.id !== id))
+                setStatus('success');
+                cb("", "Success")
+            }
+        } catch (error: any) {
+            cb(error.message)
+            setStatus('error')
+        }
     }, [list, status]);
 
-    const updateContact = React.useCallback(async (payload: { id: number, name: string }, callback: (err: string) => void) => {
+    const updateContact = React.useCallback(async (payload: { id: string, firstname: string, lastname?: string }, cb: (err: string) => void) => {
         setStatus("loading");
-        const response = await fetch(`http://localhost:8080/api/contacts/${payload.id}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ name: payload.name }),
-            credentials: "include"
-        });
+        try {
+            const req = await privateApi.patch(`/api/contacts/${payload.id}`, payload);
 
-        const res = await response.json();
-
-        if (!response.ok) {
-            setStatus("error");
-            setError(res.error.message);
-            callback(res.error);
-        } else {
-            setStatus("success");
-            ;
-
-            // redirect user current
-            handleCurrent(res.result, "private");
+            if (req.status === 200) {
+                setList(pv => pv.map(foo => {
+                    if (foo.username === req.data.result.username) {
+                        return {
+                            ...foo,
+                            ...req.data.result
+                        }
+                    } else {
+                        return foo
+                    }
+                }))
+                setStatus('success');
+                cb("")
+            }
+        } catch (error: any) {
+            cb(error.message)
+            setStatus('error')
         }
     }, [list, status]);
 
@@ -165,7 +168,7 @@ function ContactContext({ children }: { children: React.ReactNode }) {
                 return foo
             }
         }).sort((a, b) => new Date(b.last_info.time).getTime() - new Date(a.last_info.time).getTime())
-    )
+        )
     }, [list, current?.id]);
 
 
@@ -185,32 +188,32 @@ function ContactContext({ children }: { children: React.ReactNode }) {
                 return foo
             }
         }).sort((a, b) => new Date(b.last_info.time).getTime() - new Date(a.last_info.time).getTime())
-    )
+        )
     }, [list, current?.id]);
 
     const getGroup = React.useCallback((code: string) => {
-    
+
         const find = group.find(foo => foo.group_code === code);
         const result = find?.member.map(foo => {
             const exist = list.find(fi => fi.username === foo.username);
-            if(exist){
+            if (exist) {
                 return exist;
             } else {
                 return foo
             }
         }) || []
-        
-        
+
+
         return {
             ...find!,
             member: result
         } || null
     }, [list, current?.id]);
 
-    
 
-    
-    const updatelastActive = React.useCallback((type: "online" | "offline", current: any) => {        
+
+
+    const updatelastActive = React.useCallback((type: "online" | "offline", current: any) => {
         setList(pv => pv.map(foo => {
             if (foo.username === current.username) {
                 return {
@@ -221,7 +224,7 @@ function ContactContext({ children }: { children: React.ReactNode }) {
                 return foo
             }
         }).sort((a, b) => new Date(b.last_info.time).getTime() - new Date(a.last_info.time).getTime())
-    )
+        )
     }, [list, current?.id]);
 
 
@@ -229,17 +232,16 @@ function ContactContext({ children }: { children: React.ReactNode }) {
 
 
     React.useEffect(() => {
+        if (!socket) return
         if (socketProvider.status) {
             getContact()
 
             socket.on("user-online", (cur) => {
                 updatelastActive("online", cur)
-                console.log(cur);
-                
+
             })
             socket.on("user-offline", (cur) => {
                 // upadte contact if user onine or disconnect
-                console.log("off =>", cur);
                 updatelastActive("offline", cur)
             })
             socket.on("new-contact", (con: ContactType) => {
@@ -272,6 +274,16 @@ function ContactContext({ children }: { children: React.ReactNode }) {
         }
     }, [current]);
 
+    // React.useEffect(() => {
+    //     if (current?.username) {
+    //         const fin = list.find(foo => foo.username === current?.username);
+
+    //         if (fin) {
+    //             handleCurrent(fin, fin.type)
+    //         }
+    //     }
+    // }, [list, current])
+
 
     return (
         <Context.Provider value={{
@@ -289,13 +301,15 @@ function ContactContext({ children }: { children: React.ReactNode }) {
         }}
         >
             <RouterContactContext>
-                <GroupContactContext>
-                    <SearchContactContext>
-                        {children}
-                    </SearchContactContext>
-                </GroupContactContext>
+                <StatusContentContact>
+                    <GroupContactContext>
+                        <SearchContactContext>
+                            {children}
+                        </SearchContactContext>
+                    </GroupContactContext>
+                </StatusContentContact>
             </RouterContactContext>
-        </Context.Provider>
+        </Context.Provider >
     )
 }
 

@@ -21,8 +21,8 @@ module.exports = {
         });
 
         if (exist >= 1) throw new ResponseError(404, "Contatc already exist");
-   
-        return await prisma.contact.create({
+
+        const result = await prisma.contact.create({
             data: {
                 contact_list_id: contact_list_id,
                 first_name: req.first_name,
@@ -33,42 +33,66 @@ module.exports = {
                         msg: ""
                     }
                 }
-            }
-        })
-    },
-    remove: async (contactId) => {
-        const query = await prisma.contact.findFirst({
-            where: {
-                id: +contactId
-            }
-        })
-        if (!query) throw new ResponseError(404, "Contact is not found");
-        const result = await prisma.contact.delete({
-            where: {
-                id: +contactId
             },
-            select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                user: {
+            include:{
+                user:{
                     select: {
-                        username: true
+                        username: true,
+                        user_info:{
+                            select: {
+                                bio: true
+                            }
+                        },
+                        last_active: true
                     }
-                }
+                },
+                last_info: true
             }
         })
 
         return {
             id: result.id,
-            name: result.name,
-            username: result.user.username
+            name: `${result.first_name}%2f${result.last_name || ""}`,
+            bio: result.user.user_info.bio,
+            username: result.user.username,
+            last_info: result.last_info,
+            last_active: result.user.last_active,
+            type: "private"
         }
+    },
+    remove: async (contactId) => {
+        const query = await prisma.contact.findFirst({
+            where: {
+                id: contactId
+            }
+        })
+
+        if (!query) throw new ResponseError(404, "Contact is not found");
+
+        await prisma.$transaction([
+            prisma.status_readed.deleteMany({
+                where: {
+                    contact_id: contactId
+                }
+            }),
+            prisma.last_info.delete({
+                where: {
+                    contact_id: contactId
+                }
+            }),
+            prisma.contact.delete({
+                where: {
+                    id: contactId
+                }
+            })
+        ])
+
+        return "Success"
     },
     update: async (contactId, req) => {
         const query = await prisma.contact.findFirst({
             where: {
-                id: +contactId
+                id: contactId
             }
         })
 
@@ -76,18 +100,28 @@ module.exports = {
 
         const result = await prisma.contact.update({
             where: {
-                id: +contactId
+                id: contactId
             },
             data: {
-                first_name: req.first_name,
-                last_name: req.last_name,
+                first_name: req.firstname,
+                last_name: req.lastname,
+                unsaved: false,
             },
             select: {
                 id: true,
-                name: true,
+                last_info: true,
+                first_name: true,
+                last_name: true,
+                unsaved: true,
                 user: {
                     select: {
-                        username: true
+                        username: true,
+                        user_info: {
+                            select: {
+                                bio: true
+                            }
+                        },
+                        last_active: true
                     }
                 }
             }
@@ -95,11 +129,16 @@ module.exports = {
 
         return {
             id: result.id,
-            name: result.name,
+            name: `${result.first_name}%2f${result.last_name || ""}`,
+            bio: result.user.user_info.bio,
             username: result.user.username,
+            last_info: result.last_info,
+            last_active: result.user.last_active,
+            type: "private"
         }
     },
     list: async (req) => {
+
         let all = await prisma.users.findUnique({
             where: {
                 id: req,
@@ -159,6 +198,7 @@ module.exports = {
                                 first_name: true,
                                 last_name: true,
                                 last_info: true,
+                                unsaved: true,
                                 user: {
                                     select: {
                                         username: true,
@@ -197,7 +237,6 @@ module.exports = {
                             first_name: member.user.user_info.first_name || member.user.username,
                             last_name: member.user.user_info.last_name,
                             bio: member.user.user_info.bio,
-                            last_active: member.user.last_active
                         }))
                 }))
         ] : []
@@ -208,12 +247,13 @@ module.exports = {
                 .contact
                 .map(foo => ({
                     id: foo.id,
-                    name: foo.first_name,
+                    name: `${foo.first_name}%2f${foo.last_name || ""}`,
                     bio: foo.user.user_info.bio,
                     username: foo.user.username,
                     last_info: foo.last_info,
                     last_active: foo.user.last_active,
-                    type: "private"
+                    type: "private",
+                    unsaved: foo.unsaved
                 })),
             ...(
                 group.length >= 1 ? [
@@ -233,7 +273,7 @@ module.exports = {
                 ] : []
             )
 
-        ].sort((a,b) => b.last_info.time - a.last_info.time)
+        ].sort((a, b) => b.last_info.time - a.last_info.time)
 
 
         return {

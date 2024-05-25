@@ -4,10 +4,12 @@ import ContactContentLayout from "../ContactContentLayout"
 import HeaderContactLayout from "../HeaderContactLayout"
 import FieldNewContact from "./FieldNewContact"
 import { useRef } from "react"
+import { useRouterContact } from "@contexts/chat/contact/RouterContactContext"
 
 function NewContactContent() {
 
     const { fn: { addContact } } = useContact()
+    const { fn: { handleContent } } = useRouterContact()
     const ref = useRef<HTMLFormElement | null>(null);
 
     async function handleAddContact(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
@@ -26,8 +28,8 @@ function NewContactContent() {
             last_name: last_name,
             username: username
         }, (err) => {
-            if(err){
-                alert(err)
+            if(!err){
+                handleContent("idle")
             }
         })
     }

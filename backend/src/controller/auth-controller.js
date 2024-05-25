@@ -43,10 +43,11 @@ module.exports = {
             )
             res.status(200).json({
                 result: {
-                    user: {
-                        id: result.id,
-                        username: result.username
-                    }
+                    id: result.id,
+                    username: result.username,
+                    email: result.user.email,
+                    first_name: result.user.user_info.first_name,
+                    last_name: result.user.user_info.last_name,
                 }
             });
             res.end();

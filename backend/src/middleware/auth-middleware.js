@@ -12,7 +12,7 @@ module.exports = {
             
             const auth = socket.handshake.auth;
             if (!auth.username)
-                throw new ResponseError(401, "Access username is denied");
+                throw new ResponseError(401, "Access username is not exist");
             jwt.verify(cookies.auth_socket, process.env.TOKEN_KEY, (err, result) => {
                 if (err){
                     throw new ResponseError(401, "Access denied");
@@ -32,7 +32,7 @@ module.exports = {
 
             next();
         } catch (e) {
-            console.log(`Access denied for "${socket.id}", message ${e.message}`);
+            console.log(`Access denied for "${socket.id}", message: ${e.message}`);
         }
     },
     api: async (req, res, next) => {

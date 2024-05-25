@@ -27,21 +27,6 @@ function ShareContact() {
                             <ContactGrupCard data={con} />
                         ))
                     }
-                    {
-                        contact.map(con => (
-                            <ContactGrupCard data={con} />
-                        ))
-                    }
-                    {
-                        contact.map(con => (
-                            <ContactGrupCard data={con} />
-                        ))
-                    }
-                    {
-                        contact.map(con => (
-                            <ContactGrupCard data={con} />
-                        ))
-                    }
                 </div>
             </div>
             <div className="px-3 py-2 text-white flex justify-between items-center bg-bg-primary">

@@ -46,6 +46,7 @@ model user_status {
     create_at   DateTime        @default(now())
     duration    Int?
     src         String
+    text        String          @default("")
     user_id     String          @unique @db.ObjectId
     user        users           @relation(fields: [user_id], references: [id])
     status_read status_readed[]
@@ -114,23 +115,13 @@ model group_member {
     group_id String? @db.ObjectId
 }
 
-// model chat {
-//     id          String    @id @default(auto()) @map("_id") @db.ObjectId
-//     alst_active DateTime?
-//     last_msg    String?
-//     contact_id  String    @unique @db.ObjectId
-//     contact     contact   @relation(fields: [contact_id], references: [id])
-//     message     message[]
-// }
-
 model message {
     id          String    @id @default(auto()) @map("_id") @db.ObjectId
     msg         String
     time        DateTime  @default(now())
     forward     Boolean   @default(false)
-    // chat_id     String    @db.ObjectId
-    // contact     chat      @relation(fields: [chat_id], references: [id])
     info_msg    info_msg?
+    src         String?
     pull_msg_id String    @unique @db.ObjectId
     pull_msg    pull_msg  @relation(fields: [pull_msg_id], references: [id])
     contact     contact[] @relation(fields: [contact_id], references: [id])
@@ -146,6 +137,7 @@ model info_msg {
     sender_read Boolean @default(true)
     respon_read Boolean @default(false)
     type        String  @default("private")
+    type_src    String?  @default("none")
     message_id  String  @unique @db.ObjectId
     message     message @relation(fields: [message_id], references: [id])
 }

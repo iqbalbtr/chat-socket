@@ -1,4 +1,4 @@
-import { UserContact, GroupContact } from "@contexts/chat/ChatContext";
+import { UserContact, GroupType } from "@contexts/chat/ChatContext";
 
 export function isUser(obj: any): obj is UserContact {
     return (
@@ -11,7 +11,7 @@ export function isUser(obj: any): obj is UserContact {
     );
 }
 
-export function isGroup(obj: any): obj is GroupContact {
+export function isGroup(obj: any): obj is GroupType {
     return (
         typeof obj.id === 'string' &&
         typeof obj.name === 'string' &&

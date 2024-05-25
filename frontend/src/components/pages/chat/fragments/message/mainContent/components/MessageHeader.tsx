@@ -19,21 +19,19 @@ function MessageHeader() {
         if(!current) return
         if (current?.type === "private") {
             const time = contact.find(foo => foo.username === current?.username)
-            return time?.last_active === "online" ? "online" : getTimeNotif(new Date(time?.last_active!))
+            return time?.last_active === "online" ? "online" : time?.last_active ? getTimeNotif(new Date(time?.last_active!)) : " "
         } else {
-            console.log();
-            
-            return getGroup(current.username)?.member.map(foo => foo.username === user.username ? "Kamu" : foo.name).join(", ")
+            return getGroup(current.username)?.member.map(foo => foo.username === user.username ? "Kamu" : foo.name || foo.username).join(", ")
         }
     }
 
     return (
         <div className={`w-full flex justify-between py-2.5 px-5 bg-bg-primary text-white items-center relative`}>
-            <div className="flex gap-2 items-center cursor-pointer" onClick={() => handleRouterMessage("user_info")}>
-                <span className='w-[35px] flex justify-center items-center aspect-square rounded-full bg-gray-400'>{chat.current?.name?.charAt(0).toUpperCase()}</span>
+            <div className="flex gap-4 items-center cursor-pointer" onClick={() => handleRouterMessage("user_info")}>
+                <span className='w-[45px] flex justify-center items-center aspect-square rounded-full bg-gray-400'>{chat.current?.name?.charAt(0).toUpperCase()}</span>
                 <div>
-                    <h3 className='font-semibold'>{chat.current?.name}</h3>
-                    <span>{getLastActive()}</span>
+                    <h3 className='font-semibold'>{chat.current?.name.replace("%2f", " ")}</h3>
+                    <span className='max-w-52 line-clamp-1 text-ellipsis'>{getLastActive()}</span>
                 </div>
             </div>
             <div className='flex justify-center items-center gap-4'>

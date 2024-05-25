@@ -19,7 +19,15 @@ module.exports = {
                     message: {
                         include: {
                             info_msg: true,
-                            pull_msg: true
+                            pull_msg: {
+                                include: {
+                                    msg: {
+                                        include:{
+                                            info_msg: true
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -32,7 +40,15 @@ module.exports = {
                     message: {
                         include: {
                             info_msg: true,
-                            pull_msg: true
+                            pull_msg: {
+                                include: {
+                                    msg: {
+                                        include:{
+                                            info_msg: true
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -50,7 +66,18 @@ module.exports = {
                 sender_read: foo.info_msg.sender_read,
                 respon_read: foo.info_msg.respon_read,
                 type: foo.info_msg.type
-            }
+            },
+            ...(foo.pull_msg.status && {
+                pull_msg: {
+                    id: foo.pull_msg.msg.id,
+                    msg: foo.pull_msg.msg.msg,
+                    time: foo.pull_msg.msg.time,
+                    forward: false,
+                    info_msg: {
+                        ...foo.pull_msg.msg.info_msg
+                    }
+                }
+            })
         })) : []
 
 

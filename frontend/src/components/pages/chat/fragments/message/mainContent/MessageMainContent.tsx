@@ -4,11 +4,14 @@ import SendMessage from './components/SendMessage'
 import MessageCard from '../../cards/MessageCard';
 import { useMessage } from '@contexts/chat/MessageContext';
 import { useChat } from '@contexts/chat/ChatContext';
+import SendPhoto from './components/SendPhoto';
+import { useRouterMessage } from '@contexts/chat/message/RouterMessageContext';
 
 function MessageMainContent() {
 
-    const { message  } = useMessage();
+    const { message } = useMessage();
     const { current } = useChat();
+    const { inner } = useRouterMessage()
     const container = useRef<HTMLDivElement | null>(null);
 
     React.useEffect(() => {
@@ -17,32 +20,42 @@ function MessageMainContent() {
         }
     }, [message, current])
 
+
     return (
         <div
             style={{ position: "relative", width: "100%" }}
         >
             <ChatHeader />
-            <div
-                ref={container}
-                id='message-container'
-                style={{
-                    maxHeight: "83.5vh",
-                    height: '83.4vh',
-                    display: "flex",
-                    flexDirection: "column",
-                    background: "var(--bg-secondary)",
-                    overflowY: "scroll",
-                    padding: "0 26px"
-                }}
-            >
-                
-                {
-                    message.map((data, id) => (
-                        <MessageCard key={id} data={data} />
-                    ))
-                }
-            </div>
-            <SendMessage />
+            {
+                inner.includes('send') ? (
+                    <SendPhoto />
+                ) : (
+                    <div>
+                        <div
+                            ref={container}
+                            id='message-container'
+                            style={{
+                                maxHeight: "83.5vh",
+                                height: '82.4vh',
+                                display: "flex",
+                                flexDirection: "column",
+                                background: "var(--bg-secondary)",
+                                overflowY: "scroll",
+                                padding: "0 26px",
+                            }}
+                        >
+
+                            {
+                                message.map((data, id) => (
+                                    <MessageCard key={id} data={data} />
+                                ))
+                            }
+                        </div>
+                        <SendMessage />
+                    </div>
+                )
+            }
+
         </div>
     )
 }

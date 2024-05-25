@@ -7,6 +7,7 @@ module.exports = {
 
             // get sender information 
             const sender = current.id;
+            let newContact = null;
 
             //  create message
             const createMsg = await prisma.message.create({
@@ -25,15 +26,38 @@ module.exports = {
                     },
                     pull_msg: {
                         create: {
-                            status: false
-                        }
+                            status: msg.pull_msg_id ? true : false,
+                        },
                     }
                 },
                 include: {
                     info_msg: true,
-                    pull_msg: true
+                    pull_msg: {
+                        include: {
+                            msg: {
+                                include: {
+                                    info_msg: true
+                                }
+                            }
+                        }
+                    }
                 }
             })
+
+            const pull_msg = createMsg.pull_msg.status ?
+                await prisma.message.update({
+                    where: {
+                        id: msg.pull_msg_id
+                    },
+                    data: {
+                        pull_msg_id: createMsg.pull_msg_id
+                    },
+                    include: {
+                        info_msg: true
+                    }
+                }) : false
+
+
 
             // validate is rponder exist in database
             const reponUser = await prisma.users.findFirst({
@@ -98,7 +122,7 @@ module.exports = {
                     }
                 })
 
-                socket.to(msg.info_msg.to).emit("new-contact", {
+                newContact = {
                     id: result.id,
                     name: `${result.first_name} ${result.last_name || " "}`,
                     bio: result.user.user_info.bio,
@@ -110,7 +134,7 @@ module.exports = {
                         time: result.last_info.time,
                         unread: 1,
                     }
-                })
+                }
 
             } else {
                 const unread = find.last_info.unread++
@@ -164,10 +188,21 @@ module.exports = {
                 info_msg: {
                     id: createMsg.info_msg.id,
                     ...msg.info_msg
-                }
+                },
+                ...(pull_msg && {
+                    pull_msg: {
+                        id: pull_msg.id,
+                        msg: pull_msg.msg,
+                        time: pull_msg.time,
+                        forward: false,
+                        info_msg: {
+                            ...pull_msg.info_msg
+                        }
+                    }
+                })
             }
 
-            callback(null, resultMsg);
+            callback(null, resultMsg, newContact);
 
         } catch (error) {
 
@@ -199,15 +234,38 @@ module.exports = {
                     },
                     pull_msg: {
                         create: {
-                            status: false
+                            status: msg.pull_msg_id ? true : false
                         }
                     }
                 },
                 include: {
                     info_msg: true,
-                    pull_msg: true
+                    pull_msg: {
+                        include: {
+                            msg:{
+                                include:{
+                                    info_msg: true
+                                }
+                            }
+                        }
+                    }
                 }
             })
+
+            
+            const pull_msg = createMsg.pull_msg.status ?
+                await prisma.message.update({
+                    where: {
+                        id: msg.pull_msg_id
+                    },
+                    data: {
+                        pull_msg_id: createMsg.pull_msg_id
+                    },
+                    include: {
+                        info_msg: true
+                    }
+                }) : false
+
 
 
             // update last info current group 
@@ -253,17 +311,28 @@ module.exports = {
                 info_msg: {
                     id: createMsg.info_msg.id,
                     ...msg.info_msg
-                }
+                },
+                ...(pull_msg && {
+                    pull_msg: {
+                        id: pull_msg.id,
+                        msg: pull_msg.msg,
+                        time: pull_msg.time,
+                        forward: false,
+                        info_msg: {
+                            ...pull_msg.info_msg
+                        }
+                    }
+                })
             }
 
             // returm all member group and reuslt msg
             callback(null, resultMsg)
         } catch (error) {
-            
+
             /**
             * Handler error message
             */
-           console.log(error);
+            console.log(error);
             callback("Erorr sending message")
         }
     }

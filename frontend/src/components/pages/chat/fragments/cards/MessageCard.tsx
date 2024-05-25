@@ -1,14 +1,34 @@
 import React, { useEffect, useState } from 'react'
-import style from "../../styles/chat.module.css"
 import { useSession } from '@providers/AuthProvider';
 import { MsgType, useChat } from '@contexts/chat/ChatContext';
 import { colors } from '../../../../../constants/color';
 import MessageCardListMenu from '../listMenu/MessageCardListMenu';
-import ModalTransparent from '@components/core/ModalTransparent';
-import { useMessage } from '@contexts/chat/MessageContext';
 import Cheked from './Cheked';
 import { useSelectMessage } from '@contexts/chat/message/SelectMessageContext';
 import { getHourTime } from '@utils/timeNotif';
+import { useSearchMessage } from '@contexts/chat/message/SearchMessagteContext';
+import Icon from '../../../../../constants/icons';
+
+const brightColors = [
+    "#FF5733", // Bright Red-Orange
+    "#FF8D33", // Bright Orange
+    "#FFC133", // Bright Yellow-Orange
+    "#FFF333", // Bright Yellow
+    "#B6FF33", // Bright Lime Green
+    "#33FF57", // Bright Green
+    "#33FF8D", // Bright Green-Cyan
+    "#33FFC1", // Bright Cyan
+    "#33FFF3", // Bright Cyan-Blue
+    "#33C1FF", // Bright Blue
+    "#338DFF", // Bright Blue-Purple
+    "#5733FF", // Bright Purple
+    "#8D33FF", // Bright Purple-Magenta
+    "#C133FF", // Bright Magenta
+    "#F333FF", // Bright Pink
+    "#FF33C1", // Bright Pink-Magenta
+    "#FF338D", // Bright Red-Pink
+    "#FF3357"  // Bright Red
+];
 
 function MessageCard({
     data
@@ -17,11 +37,34 @@ function MessageCard({
 }) {
 
     const [tglList, setTglList] = useState(false);
+    const [fade, setfade] = useState(true);
     const { select, fn: { handleSelect } } = useSelectMessage();
     const { user } = useSession();
     const { current } = useChat();
+    const { fn: { handleRefClick } } = useSearchMessage();
+
+    function assignBrightColors(strings: string) {
+        return strings.split("").map((str, index) => {
+            const colorIndex = index % brightColors.length;
+            const firstChar = str.charAt(0);
+            const assignedColor = brightColors[colorIndex];
+            return { char: firstChar, color: assignedColor };
+        });
+    }
+
+    // const userColor = assignBrightColors(data.info_msg.from)?
+    // console.log(assignBrightColors);
+    
+    
 
 
+    useEffect(() => {
+        const fadeAnimation = setTimeout(() => setfade(false), 200)
+
+        return () => {
+            clearTimeout(fadeAnimation)
+        }
+    }, [])
 
     const getExistForward = select.data.find(msg => msg.id === data.id) ? true : false;
 
@@ -31,7 +74,8 @@ function MessageCard({
             onClick={() => select.status ? handleSelect(data) : null}
             className={`w-full relative flex my-2 text-white ${getExistForward && "bg-bg-primary"} ${select.data.length >= 1 && "cursor-pointer"}`}
             style={{
-                justifyContent: data.info_msg.from === user.username ? "flex-end" : "flex-start"
+                justifyContent: data.info_msg.from === user.username ? "flex-end" : "flex-start",
+                opacity: fade ? "0" : "1"
             }}
         >
 
@@ -65,18 +109,30 @@ function MessageCard({
                         borderRadius: user.username === data.info_msg.from ? "8px 8px 0" : "8px 8px 8px 0px"
                     }}
                 >
-                     {
-                    current?.type === "group" && data.info_msg.from !== user.username && (
-                        <h5
-                            style={{
-                                textAlign: data.info_msg.from === user.username ? "right" : 'left'
-                            }}
-                            className='ml-1 text-icon-color text-sm'
-                        >
-                            {data.info_msg.from === user.username ? "You" : data.info_msg.from}
-                        </h5>
-                    )
-                }
+                    {
+                        data.forward && data.info_msg.from !== user.username && (
+                            <div className='h-6 flex gap-1 italic px-1'>
+                                {Icon.corner_right({
+                                    color: colors.ICON_COLOR,
+                                    size: 20
+                                })}
+                                <p className='text-sm text-icon-color'>Diteruskan</p>
+                            </div>
+                        )
+                    }
+                    {
+                        current?.type === "group" && data.info_msg.from !== user.username && (
+                            <h5
+                                style={{
+                                    textAlign: data.info_msg.from === user.username ? "right" : 'left',
+                                    color: ""
+                                }}
+                                className={`ml-1 text-sm`}
+                            >
+                                {data.info_msg.from === user.username ? "You" : data.info_msg.from}
+                            </h5>
+                        )
+                    }
 
 
                     {/* Toggle list message menu button start */}
@@ -122,28 +178,29 @@ function MessageCard({
 
 
                     {/* Message Reply Cards start */}
-                    {/* {
-                        data.pull.status && (
+                    {
+                        data.pull_msg && (
                             <div style={{
                                 padding: 6,
                                 marginBottom: 3,
                                 borderRadius: 6,
                             }}
+                                onClick={() => handleRefClick(data.pull_msg?.id!)}
                                 className='bg-green-secondary rounded-2xl border-l-4 border-green-accent'
                             >
-                                {
+                                {/* {
                                     data.fwd && data.fwd !== current && <span style={{ color: "red" }}>Terusan</span>
-                                }
+                                } */}
                                 <h6
                                     style={{ marginBottom: 4 }}
                                     className='text-green-accent'
                                 >
-                                    {data.pull.data?.info_msg.from === user.username ? "Kamu" : data.pull.data?.info_msg.from}
+                                    {data.pull_msg.info_msg.from === user.username ? "Kamu" : data.pull_msg.info_msg.from}
                                 </h6>
-                                <p>{data.pull.data?.msg}</p>
+                                <p>{data.pull_msg.msg}</p>
                             </div>
                         )
-                    } */}
+                    }
                     {/* Message Reply Cards End */}
 
 

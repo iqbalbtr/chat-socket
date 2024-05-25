@@ -17,7 +17,7 @@ module.exports = {
                     }
                 }
             });
-    
+
             const createMember = req.member.map(async (member) => {
                 const user = await prisma.users.findUnique({
                     where: {
@@ -25,10 +25,8 @@ module.exports = {
                     }
                 });
 
-                console.log("member =>", user);
-    
                 if (user) {
-                    return tx.group_member.create({
+                    const result = await tx.group_member.create({
                         data: {
                             group_id: createGroup.id,
                             user_id: user.id,
@@ -40,18 +38,31 @@ module.exports = {
                                 select: {
                                     username: true,
                                     email: true,
-                                    user_info: true
+                                    user_info: true,
                                 }
                             }
                         }
                     });
+
+                    return {
+                        id: result.id,
+                        role: result.role,
+                        username: result.user.username,
+                        first_name: result.user.user_info.first_name || result.user.username,
+                        last_name: result.user.user_info.last_name,
+                        bio: result.user.user_info.bio,
+                    }
                 }
             });
+
 
             const member = await Promise.all(createMember);
 
             return {
-                ...createGroup,
+                id: createGroup.id,
+                name: createGroup.name,
+                bio: createGroup.bio,
+                group_code: foo.group.group_code,
                 member: member
             }
         })
